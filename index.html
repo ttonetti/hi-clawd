@@ -232,6 +232,8 @@ body.guide-on .app{grid-template-columns:256px minmax(0,1fr) 380px}
 /* ---------- toast & highlights ---------- */
 .toast{position:fixed;left:50%;top:calc(16px + env(safe-area-inset-top,0px));transform:translate(-50%,-140%);background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:999px;font-weight:600;font-size:15px;z-index:80;transition:transform .35s var(--spring);pointer-events:none;max-width:90vw;text-align:center}
 .toast.show{transform:translate(-50%,0)}
+/* Hidden toast: fully off screen and invisible (its edge used to peek out at the top). */
+.toast:not(.show){transform:translate(-50%,calc(-100% - 40px));visibility:hidden;transition:transform .35s var(--spring),visibility 0s .35s}
 .pulse{animation:ring 1.4s var(--out) 2}
 .scrim{display:none}
 
