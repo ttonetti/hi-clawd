@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Onboarding para Clawd · demo v2 (estilo Anthropic)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf9f5; --surface:#FFFFFF; --side:#f0eee6; --ink:#141413; --muted:#5f5d57;
+  --line:rgba(20,20,19,.10); --accent:#b0553a; --accent-ink:#FFFFFF; --accent-soft:rgba(217,119,87,.14);
+  --orange:#d97757; --blue:#6a9bcc; --green:#788c5d; --gray:#b0aea5; --gray-lt:#e8e6dc;
+  --btn:#141413; --btn-ink:#faf9f5;
+  --mascot:#6a9bcc; --mascot-ink:#141413; --cheek:#d97757;
+  --shadow:0 12px 32px rgba(20,20,19,.08),0 2px 6px rgba(20,20,19,.05);
+  --r-sm:8px; --r-md:12px; --r-lg:20px;
+  --font:"Poppins",Arial,sans-serif;
+  --font-read:"Lora",Georgia,serif;
+  --spring:cubic-bezier(.34,1.56,.64,1); --out:cubic-bezier(0,0,.2,1);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#141413; --surface:#1f1e1c; --side:#1a1917; --ink:#faf9f5; --muted:#b0aea5;
+    --line:rgba(250,249,245,.12); --accent:#e8937a; --accent-ink:#141413; --accent-soft:rgba(217,119,87,.18);
+    --btn:#faf9f5; --btn-ink:#141413;
+    --shadow:0 12px 32px rgba(0,0,0,.45),0 2px 6px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141413; --surface:#1f1e1c; --side:#1a1917; --ink:#faf9f5; --muted:#b0aea5;
+  --line:rgba(250,249,245,.12); --accent:#e8937a; --accent-ink:#141413; --accent-soft:rgba(217,119,87,.18);
+  --btn:#faf9f5; --btn-ink:#141413;
+  --shadow:0 12px 32px rgba(0,0,0,.45),0 2px 6px rgba(0,0,0,.3);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow:hidden}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+[hidden]{display:none!important}
+
+/* ---------- layout ---------- */
+.app{display:grid;grid-template-columns:256px minmax(0,1fr);height:100%}
+body.guide-on .app{grid-template-columns:256px minmax(0,1fr) 380px}
+
+/* ---------- sidebar ---------- */
+.sidebar{background:var(--side);display:flex;flex-direction:column;padding:16px 12px;gap:8px;min-height:0;overflow-y:auto;border-right:1px solid var(--line)}
+.side-new{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:var(--r-md);border:1px solid var(--line);background:var(--surface);font-weight:600;text-align:left}
+.side-nav{display:flex;flex-direction:column;gap:2px;margin-top:8px}
+.side-item{display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;border:0;border-radius:var(--r-sm);background:transparent;text-align:left;color:var(--ink)}
+.side-item:hover{background:var(--line)}
+.side-item svg{width:18px;height:18px;flex:none;color:var(--muted)}
+.guide-item{font-weight:600;background:var(--accent-soft)}
+.guide-item:hover{background:var(--accent-soft);filter:brightness(.97)}
+.gi-mascot{width:22px;height:22px;flex:none;display:block}
+.badge{margin-left:auto;font-size:12px;font-weight:600;color:var(--accent);background:var(--surface);padding:1px 8px;border-radius:999px}
+.proj-child{display:flex;align-items:center;gap:8px;padding:7px 12px 7px 40px;border-radius:var(--r-sm);font-size:15px;animation:slidein .5s var(--spring)}
+.proj-child .dot{width:8px;height:8px;border-radius:50%;background:var(--mascot);flex:none}
+.side-label{font-size:13px;color:var(--muted);margin:16px 12px 4px}
+.recent{display:block;width:100%;text-align:left;padding:7px 12px;border:0;background:transparent;border-radius:var(--r-sm);font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recent:hover{background:var(--line)}
+.side-foot{margin-top:auto;padding:12px;font-size:13px;color:var(--muted)}
+.side-foot p{margin:0 0 10px}
+.lang{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:2px;background:var(--surface)}
+.lang button{border:0;background:transparent;padding:3px 10px;border-radius:999px;font-size:13px;font-weight:600;color:var(--muted)}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+
+/* ---------- main ---------- */
+.main{position:relative;display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--bg)}
+.topbar{display:flex;align-items:center;gap:8px;height:52px;padding:0 16px;flex:none}
+.crumb{font-weight:600;font-size:15px;display:flex;align-items:center;gap:8px;min-width:0}
+.crumb .pill{font-weight:600;font-size:13px;padding:2px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent);animation:slidein .5s var(--spring)}
+.thread{flex:1;overflow-y:auto;padding:8px 16px 24px}
+.empty{max-width:680px;margin:18vh auto 0;text-align:center}
+.empty h2{font-size:clamp(26px,4vw,34px);font-weight:600;letter-spacing:-.02em;margin:0}
+.msgs{max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.msg{display:flex;gap:12px;align-items:flex-start;animation:fadein .35s var(--out)}
+.msg.user{justify-content:flex-end}
+.msg.user .bubble{background:var(--surface);border:1px solid var(--line);padding:10px 14px;border-radius:18px 18px 4px 18px;max-width:80%}
+.msg.claude .av{width:28px;height:28px;flex:none;margin-top:2px}
+.msg.claude .bubble{padding-top:4px;max-width:calc(100% - 40px)}
+.msg.claude .bubble p{margin:0 0 10px}
+.typing{display:inline-flex;gap:5px;padding:8px 0}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:dot 1.2s infinite ease-in-out}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+.art-card{display:flex;align-items:center;gap:12px;width:100%;max-width:360px;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);text-align:left}
+.art-card:hover{border-color:var(--accent)}
+.art-ico{width:36px;height:36px;border-radius:var(--r-sm);background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;flex:none}
+.art-ico svg{width:18px;height:18px}
+.art-card strong{display:block;font-weight:600;line-height:1.3}
+.art-card small{color:var(--muted);font-size:13px}
+.composer-wrap{flex:none;padding:0 16px 16px}
+.composer{max-width:680px;margin:0 auto;display:flex;align-items:flex-end;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:10px 10px 10px 16px;box-shadow:var(--shadow)}
+.composer textarea{flex:1;border:0;outline:0;background:transparent;resize:none;max-height:160px;padding:6px 0;line-height:1.45}
+.send{width:36px;height:36px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;flex:none}
+.send:disabled{opacity:.4;cursor:default}
+.send svg{width:18px;height:18px}
+.icon-btn{width:36px;height:36px;border:0;border-radius:var(--r-sm);background:transparent;display:grid;place-items:center;color:var(--muted);flex:none}
+.icon-btn:hover{background:var(--line);color:var(--ink)}
+.icon-btn svg{width:18px;height:18px}
+.only-mobile{display:none}
+
+/* ---------- artifact panel ---------- */
+.artifact{position:absolute;top:0;right:0;bottom:0;width:min(560px,58%);background:var(--surface);border-left:1px solid var(--line);display:flex;flex-direction:column;transform:translateX(102%);transition:transform .45s var(--out);z-index:5;box-shadow:var(--shadow)}
+.artifact.open{transform:none}
+.art-head{display:flex;align-items:flex-start;gap:8px;padding:16px 16px 12px 24px;border-bottom:1px solid var(--line)}
+.art-head .t{flex:1;min-width:0}
+.art-kind{margin:0;font-size:13px;color:var(--muted)}
+.art-head h3{margin:2px 0 0;font-size:20px;font-weight:600;letter-spacing:-.01em;line-height:1.3}
+.btn-quiet{border:1px solid var(--line);background:var(--surface);border-radius:var(--r-sm);padding:6px 12px;font-size:14px;font-weight:600}
+.btn-quiet:hover{border-color:var(--ink)}
+.art-body{flex:1;overflow-y:auto;padding:20px 24px 32px;max-width:72ch}
+.art-body h3{font-size:17px;font-weight:600;margin:20px 0 6px}
+.art-body p{margin:0 0 12px}
+.art-body ul,.art-body ol{margin:0 0 12px;padding-left:22px}
+.art-body li{margin-bottom:4px}
+.art-foot{padding:10px 24px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+.diagram{margin:16px 0 20px}
+.diagram figcaption{font-size:14px;font-weight:600;color:var(--muted);margin-bottom:8px}
+.diagram svg{width:100%;max-width:460px;height:auto;display:block;font-family:var(--font)}
+.skeleton{height:12px;border-radius:6px;background:var(--line);margin:10px 0;animation:shimmer 1.4s infinite ease-in-out}
+
+/* ---------- coach (guide) ---------- */
+.coach{background:var(--surface);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0;z-index:20}
+.coach-head{display:flex;align-items:center;gap:12px;padding:16px 16px 12px 20px;flex:none}
+.coach-mascot{width:48px;height:48px;flex:none}
+.coach-meta{flex:1;min-width:0;display:flex;flex-direction:column}
+.coach-name{font-weight:600}
+.coach-step{font-size:13px;color:var(--muted)}
+.progress{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:0 20px 4px;flex:none}
+.progress i{height:4px;border-radius:2px;background:var(--line);transition:background .4s var(--out)}
+.progress i.on{background:var(--accent)}
+.coach-body{flex:1;overflow-y:auto;padding:16px 20px 24px;animation:fadein .35s var(--out)}
+.coach-body h2{font-size:22px;font-weight:700;letter-spacing:-.015em;line-height:1.25;margin:0 0 8px}
+.coach-body p{margin:0 0 14px;color:var(--ink)}
+.coach-body .soft{color:var(--muted);font-size:15px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-weight:600;font-size:15px}
+.field input,.field textarea{border:1px solid var(--line);background:var(--bg);border-radius:var(--r-md);padding:10px 12px;outline:0;width:100%}
+.field input:focus,.field textarea:focus{border-color:var(--accent);background:var(--surface)}
+.field textarea{min-height:120px;resize:vertical;line-height:1.45}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-size:15px}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tasks{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.task{border:1px solid var(--line);background:var(--bg);border-radius:var(--r-md);padding:12px 14px;text-align:left;transition:border-color .15s}
+.task:hover{border-color:var(--accent)}
+.privacy{background:var(--bg);border-radius:var(--r-md);padding:14px 16px;margin:4px 0 18px}
+.privacy strong{display:block;font-size:15px;margin-bottom:6px}
+.privacy ul{margin:0;padding-left:18px;font-size:14px;color:var(--muted)}
+.privacy li{margin-bottom:3px}
+.actions{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.btn{border:0;border-radius:var(--r-md);padding:12px 16px;font-weight:600;text-align:center;transition:transform .15s var(--out)}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-ghost{background:transparent;color:var(--muted)}
+.btn-ghost:hover{color:var(--ink)}
+.done-list{list-style:none;padding:0;margin:0 0 16px}
+.done-list li{display:flex;gap:10px;align-items:flex-start;padding:6px 0}
+.done-list svg{width:20px;height:20px;flex:none;color:var(--accent);margin-top:2px}
+.loader{display:flex;gap:6px;margin:8px 0 16px}
+.loader i{width:9px;height:9px;border-radius:50%;background:var(--mascot);animation:dot 1.2s infinite ease-in-out}
+.loader i:nth-child(2){animation-delay:.15s}.loader i:nth-child(3){animation-delay:.3s}
+
+/* ---------- welcome overlay ---------- */
+.overlay{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:16px;background:rgba(20,22,26,.42);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:fadein .3s var(--out)}
+.welcome{position:relative;width:min(460px,100%);max-height:100%;overflow-y:auto;background:var(--surface);border-radius:24px;padding:28px 28px 24px;box-shadow:var(--shadow)}
+.welcome .lang{position:absolute;top:16px;right:16px}
+.w-mascot{width:112px;height:112px;margin:4px 0 12px;animation:pop .8s var(--spring) both}
+.welcome h1{font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.15;margin:0 0 10px}
+.welcome p{margin:0 0 16px}
+.w-steps-title{font-weight:600;margin:0 0 8px}
+.w-steps{margin:0 0 8px;padding:0;list-style:none;counter-reset:s}
+.w-steps li{counter-increment:s;display:flex;align-items:center;gap:12px;padding:7px 0}
+.w-steps li::before{content:counter(s);width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:14px;display:grid;place-items:center;flex:none}
+.w-time{font-size:14px;color:var(--muted)}
+.w-recall{font-size:14px;color:var(--muted);margin:14px 0 0!important}
+
+/* ---------- Clawd mascot ---------- */
+.mascot{width:100%;height:100%;overflow:visible;display:block}
+.clawd-body{fill:#f45d48}
+.clawd-eye{fill:#141413;transform-box:fill-box;transform-origin:center}
+.clawd-core{transform-box:view-box;transform-origin:60px 66px;animation:clawdBreathe 3.2s ease-in-out infinite}
+.clawd-eyes{transform-box:view-box;transform-origin:60px 45px;animation:clawdBlink 5.2s infinite}
+.clawd-arm-left,.clawd-arm-right{transform-box:view-box}
+.clawd-arm-left{transform-origin:26px 61px}
+.clawd-arm-right{transform-origin:94px 61px}
+.clawd-spark{fill:var(--orange);opacity:0;transform-box:fill-box;transform-origin:center}
+.clawd-shadow{fill:rgba(20,20,19,.12);transform-box:fill-box;transform-origin:center;animation:clawdShadow 3.2s ease-in-out infinite}
+
+/* Clawd reacts to the onboarding instead of just idling. */
+.mascot.waving .clawd-arm-right{animation:clawdWave .55s ease-in-out 4 .35s}
+.mascot.waving .clawd-core{animation:clawdHello .9s var(--spring) both,clawdBreathe 3.2s ease-in-out 1s infinite}
+.mascot.thinking .clawd-eyes{animation:clawdThink 1.7s ease-in-out infinite}
+.mascot.thinking .clawd-core{animation:clawdThinkBob 1.7s ease-in-out infinite}
+.mascot.happy .clawd-core{animation:clawdHappy 1.15s var(--spring) 1,clawdBreathe 3.2s ease-in-out 1.15s infinite}
+.mascot.happy .clawd-eye{animation:clawdHappyEyes 1.15s ease-in-out 1}
+.mascot.celebrate .clawd-core{animation:clawdCelebrate .75s var(--spring) 2}
+.mascot.celebrate .clawd-arm-left{animation:clawdCheerL .75s ease-in-out 2}
+.mascot.celebrate .clawd-arm-right{animation:clawdCheerR .75s ease-in-out 2}
+.mascot.celebrate .clawd-spark{animation:clawdSpark 1.5s ease-out 1}
+.mascot.gentle .clawd-core{animation:clawdGentle 2.6s ease-in-out infinite}
+.mascot.gentle .clawd-eyes{animation:clawdSoftBlink 3.8s ease-in-out infinite}
+
+.clawd-wrap{position:relative}
+.clawd-wrap::after{content:"";position:absolute;inset:-8px;border-radius:50%;background:var(--accent-soft);opacity:0;transform:scale(.72);z-index:-1}
+.clawd-wrap.is-encouraging::after{animation:clawdGlow 1.4s ease-out 1}
+
+@keyframes clawdBreathe{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-2px) scale(1.015)}}
+@keyframes clawdShadow{0%,100%{transform:scaleX(1);opacity:.12}50%{transform:scaleX(.88);opacity:.08}}
+@keyframes clawdBlink{0%,45%,48%,100%{transform:scaleY(1)}46%,47%{transform:scaleY(.08)}}
+@keyframes clawdWave{0%,100%{transform:rotate(0)}45%{transform:rotate(-20deg)}70%{transform:rotate(9deg)}}
+@keyframes clawdHello{0%{transform:translateY(12px) scale(.72);opacity:0}70%{transform:translateY(-4px) scale(1.06);opacity:1}100%{transform:none;opacity:1}}
+@keyframes clawdThink{0%,100%{transform:translateX(0)}35%{transform:translateX(-4px)}70%{transform:translateX(4px)}}
+@keyframes clawdThinkBob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-2px) rotate(-2deg)}}
+@keyframes clawdHappy{0%,100%{transform:translateY(0) scale(1)}45%{transform:translateY(-7px) scale(1.05)}}
+@keyframes clawdHappyEyes{0%,100%{transform:scaleY(1)}45%{transform:scaleY(.48) scaleX(1.12)}}
+@keyframes clawdCelebrate{0%,100%{transform:translateY(0) scale(1)}45%{transform:translateY(-11px) scale(1.08)}}
+@keyframes clawdCheerL{0%,100%{transform:rotate(0)}45%{transform:rotate(16deg)}}
+@keyframes clawdCheerR{0%,100%{transform:rotate(0)}45%{transform:rotate(-16deg)}}
+@keyframes clawdSpark{0%{opacity:0;transform:scale(.2) rotate(0)}35%{opacity:1;transform:scale(1.15) rotate(18deg)}100%{opacity:0;transform:scale(.7) rotate(45deg)}}
+@keyframes clawdGentle{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-2px) scale(.98)}}
+@keyframes clawdSoftBlink{0%,88%,100%{transform:scaleY(1)}92%,96%{transform:scaleY(.35)}}
+@keyframes clawdGlow{0%{opacity:0;transform:scale(.72)}35%{opacity:.7}100%{opacity:0;transform:scale(1.2)}}
+
+/* ---------- toast & highlights ---------- */
+.toast{position:fixed;left:50%;top:calc(16px + env(safe-area-inset-top,0px));transform:translate(-50%,-140%);background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:999px;font-weight:600;font-size:15px;z-index:80;transition:transform .35s var(--spring);pointer-events:none;max-width:90vw;text-align:center}
+.toast.show{transform:translate(-50%,0)}
+.pulse{animation:ring 1.4s var(--out) 2}
+.scrim{display:none}
+
+/* ---------- v2 ---------- */
+.side-comfort{margin:12px 0 6px;font-weight:600;color:var(--ink)}
+.sidebar .chips{gap:6px}
+.sidebar .chip{font-size:13px;padding:4px 10px}
+.w-prefs{margin:4px 0 16px}
+.w-prefs .chips{margin:8px 0 6px}
+.mic.on{background:var(--accent-soft);color:var(--accent)}
+body.pref-voice .mic{color:var(--accent)}
+.prog{flex:1;overflow-y:auto;padding:8px 16px 48px}
+.prog-inner{max-width:720px;margin:0 auto}
+.prog h1{font-size:clamp(26px,4vw,34px);font-weight:700;letter-spacing:-.02em;margin:8px 0 6px}
+.prog .soft{color:var(--muted)}
+.today{margin:18px 0 12px}
+.today-bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden;margin-bottom:8px}
+.today-bar i{display:block;height:100%;background:var(--mascot);border-radius:4px;transition:width .6s var(--out)}
+.paused{background:var(--accent-soft);color:var(--accent);padding:10px 14px;border-radius:var(--r-md);font-weight:600}
+.sim{border:1px dashed var(--line);border-radius:var(--r-md);padding:14px 16px;margin:16px 0 8px;background:var(--surface)}
+.sim p{margin:4px 0 10px;color:var(--muted);font-size:14px}
+.sim-actions{display:flex;flex-wrap:wrap;gap:8px}
+.btn-sm{padding:8px 14px;font-size:15px}
+.btn:disabled{opacity:.4;cursor:default}
+.week{margin-top:28px}
+.week h2{font-size:19px;font-weight:600;margin:0 0 10px}
+.missions{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.mission{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px}
+.mission.is-locked{opacity:.6}
+.m-day{font-size:13px;font-weight:700;color:var(--accent);width:52px;flex:none}
+.m-text{flex:1;min-width:0;display:flex;flex-direction:column}
+.m-text span{font-size:14px;color:var(--muted)}
+.m-state{font-size:14px;color:var(--muted);display:inline-flex;align-items:center;gap:6px;flex:none}
+.m-state.done{color:var(--accent);font-weight:600}
+.m-state svg{width:16px;height:16px}
+.courses{display:flex;flex-direction:column;gap:10px}
+.course{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:14px 16px}
+.course.locked{opacity:.6}
+.c-top{display:flex;flex-direction:column}
+.c-top span{font-size:13px;color:var(--muted)}
+.course p{margin:8px 0;font-size:15px}
+.c-actions{display:flex;flex-wrap:wrap;gap:8px}
+.btn-quiet-lg{border:1px solid var(--line);background:var(--surface);color:var(--ink);text-decoration:none;padding:8px 14px;font-size:15px}
+.side-item .badge.count{background:var(--mascot);color:var(--mascot-ink)}
+@media (max-width:600px){
+  .mission{flex-wrap:wrap}
+  .mission .m-state,.mission .btn{margin-left:66px}
+}
+/* larger text preference */
+body.large .coach-body p,body.large .coach-body li,body.large .task,body.large .chip,body.large .btn,body.large .field input,body.large .field textarea,body.large .msg .bubble,body.large .art-body,body.large .composer textarea,body.large .welcome p,body.large .w-steps li,body.large .side-item,body.large .mission strong,body.large .course p{font-size:19px}
+body.large .soft,body.large .m-text span,body.large .privacy ul{font-size:17px!important}
+body.large .coach-body h2{font-size:26px}
+body.large .welcome h1{font-size:34px}
+body.large .btn{padding:15px 18px}
+body.large .btn-sm{padding:11px 16px}
+/* ---------- Anthropic brand layer ---------- */
+h1,h2,h3,.coach-name,.art-head h3,.empty h2{font-family:var(--font);letter-spacing:-.01em}
+.coach-body p,.coach-body li,.msg .bubble,.art-body,.welcome p,.w-steps li,.prog .soft,.m-text span,.course p,.privacy li,.sim p,.paused,.done-list span{font-family:var(--font-read)}
+.btn-primary{background:var(--btn);color:var(--btn-ink)}
+.chip[aria-pressed="true"]{background:var(--btn);border-color:var(--btn);color:var(--btn-ink)}
+.lang button[aria-pressed="true"]{background:var(--btn);color:var(--btn-ink)}
+.send{background:var(--orange);color:#141413}
+.progress i.on,.today-bar i{background:var(--orange)}
+.loader i{background:var(--orange)}
+.guide-item{background:var(--accent-soft)}
+.w-steps li::before{background:var(--accent-soft);color:var(--accent)}
+.side-item .badge.count{background:var(--orange);color:#141413}
+.proj-child .dot{background:var(--green)}
+.task:hover,.art-card:hover{border-color:var(--orange)}
+.mission.is-open{border-color:rgba(217,119,87,.45)}
+/* ---------- keyframes ---------- */
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}94%{transform:scaleY(.1)}}
+@keyframes look{0%,100%{transform:translateX(0)}30%{transform:translateX(-3px)}70%{transform:translateX(3px)}}
+@keyframes wave{0%,100%{transform:rotate(0)}50%{transform:rotate(-28deg)}}
+@keyframes pop{0%{transform:scale(.4) translateY(20px);opacity:0}100%{transform:none;opacity:1}}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes slidein{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+@keyframes dot{0%,80%,100%{transform:scale(.6);opacity:.5}40%{transform:scale(1);opacity:1}}
+@keyframes shimmer{0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes ring{0%{box-shadow:0 0 0 0 var(--accent)}100%{box-shadow:0 0 0 10px transparent}}
+
+.mascot:focus-visible{outline:none}
+@media (prefers-reduced-motion:reduce){
+  .clawd-core,.clawd-eyes,.clawd-shadow,.clawd-arm-left,.clawd-arm-right,.clawd-spark{animation:none!important}
+}
+
+/* ---------- mobile ---------- */
+@media (max-width:900px){
+  .app,body.guide-on .app{grid-template-columns:minmax(0,1fr)}
+  .only-mobile{display:grid}
+  .sidebar{position:fixed;top:0;bottom:0;left:0;width:min(300px,84vw);z-index:50;transform:translateX(-102%);transition:transform .35s var(--out);padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+  body.side-open .sidebar{transform:none;box-shadow:var(--shadow)}
+  body.side-open .scrim{display:block;position:fixed;inset:0;z-index:45;background:rgba(0,0,0,.3)}
+  .coach{position:fixed;left:0;right:0;bottom:0;max-height:64%;border-left:0;border-top:1px solid var(--line);border-radius:20px 20px 0 0;box-shadow:0 -8px 32px rgba(0,0,0,.12);padding-bottom:env(safe-area-inset-bottom,0px);animation:up .45s var(--out)}
+  .coach.min .coach-body,.coach.min .progress{display:none}
+  .coach.min .coach-head{padding-bottom:16px}
+  body.guide-on .thread{padding-bottom:58vh}
+  body.guide-on.coach-min .thread{padding-bottom:24px}
+  body.guide-on.coach-min .composer-wrap{padding-bottom:96px}
+  .artifact{position:fixed;top:auto;left:0;right:0;bottom:0;width:auto;height:90%;border-left:0;border-radius:20px 20px 0 0;transform:translateY(102%);z-index:40;padding-bottom:env(safe-area-inset-bottom,0px)}
+  .artifact.open{transform:none}
+  .empty{margin-top:10vh}
+  .welcome{padding:24px 20px 20px}
+  .welcome h1{font-size:26px}
+}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+
+<style id="clawd-static-override">
+/* Clawd: intentionally static. The mascot should feel like a visual companion,
+   not an animated UI element. */
+.mascot,
+.mascot *,
+.clawd-wrap,
+.clawd-wrap::after,
+.clawd-core,
+.clawd-eyes,
+.clawd-eye,
+.clawd-shadow,
+.clawd-arm-left,
+.clawd-arm-right,
+.clawd-spark{
+  animation:none !important;
+  transform:none !important;
+  transition:none !important;
+}
+.clawd-spark{display:none !important}
+.clawd-wrap::after{display:none !important}
+</style>
+
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar" aria-label="Menú">
+    <button class="side-new" id="newChat">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      <span data-i18n="newChat"></span>
+    </button>
+    <nav class="side-nav">
+      <button class="side-item guide-item" id="guideItem">
+        <span class="gi-mascot" data-mascot="mini"></span>
+        <span data-i18n="guide"></span>
+        <span class="badge" data-i18n="new"></span>
+      </button>
+      <button class="side-item" id="progItem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        <span data-i18n="program"></span>
+        <span class="badge count" id="progBadge" hidden></span>
+      </button>
+      <button class="side-item" data-noop>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>
+        <span data-i18n="chats"></span>
+      </button>
+      <div>
+        <button class="side-item" id="projItem" data-noop>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          <span data-i18n="projects"></span>
+        </button>
+        <div id="projList"></div>
+      </div>
+      <button class="side-item" id="artItem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+        <span data-i18n="artifacts"></span>
+      </button>
+    </nav>
+    <p class="side-label" data-i18n="recents"></p>
+    <div id="recentList"></div>
+    <div class="side-foot">
+      <p data-i18n="protoNote"></p>
+      <div id="sidePrefs"></div>
+      <div class="lang" role="group" aria-label="Idioma">
+        <button data-lang="es">ES</button><button data-lang="en">EN</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="icon-btn only-mobile" id="menuBtn" data-i18n-aria="menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <div class="crumb" id="crumb"></div>
+    </header>
+    <div class="thread" id="thread">
+      <div class="empty" id="empty"><h2 id="greet"></h2></div>
+      <div class="msgs" id="msgs"></div>
+    </div>
+    <div class="prog" id="programView" hidden></div>
+    <div class="composer-wrap">
+      <div class="composer">
+        <textarea id="input" rows="1"></textarea>
+        <button class="icon-btn mic" id="mic" data-i18n-aria="mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+        <button class="send" id="send" disabled data-i18n-aria="send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+        </button>
+      </div>
+    </div>
+    <section class="artifact" id="artifact" aria-hidden="true">
+      <div class="art-head">
+        <div class="t"><p class="art-kind" data-i18n="artifact"></p><h3 id="artTitle"></h3></div>
+        <button class="btn-quiet" id="copyBtn" data-i18n="copy"></button>
+        <button class="icon-btn" id="closeArt" data-i18n-aria="close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div class="art-body" id="artBody"></div>
+      <div class="art-foot" id="artFoot"></div>
+    </section>
+  </main>
+
+  <aside class="coach" id="coach" hidden aria-live="polite"></aside>
+</div>
+<div class="scrim" id="scrim"></div>
+<div class="overlay" id="welcome" hidden></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* ================= i18n ================= */
+const I18N = {
+  es:{
+    newChat:'Nuevo chat', guide:'Guía', new:'Nuevo', chats:'Chats', projects:'Proyectos', artifacts:'Artefactos', recents:'Recientes',
+    protoNote:'Prototipo de onboarding. No es la app oficial de Clawd.',
+    greet:'¿En qué te ayudo hoy?', greetName:'¿En qué te ayudo hoy, {name}?', placeholder:'Escribe a Clawd…', send:'Enviar', menu:'Abrir menú', close:'Cerrar',
+    wTitle:'Hola, soy Clawd',
+    wBody:'Me alegra conocerte. En unos minutos te enseño a trabajar conmigo haciendo cosas de verdad, sin manuales. Tranquilidad: aquí no puedes romper nada.',
+    wStepsTitle:'Lo que vamos a hacer',
+    steps:['Crear tu primer resultado','Pedirme un cambio','Contarme un poco de ti','Guardarlo en un proyecto'],
+    wTime:'Te llevará unos 5 minutos.', start:'Empezar', notNow:'Ahora no',
+    wRecall:'Si prefieres explorar por tu cuenta, puedes llamarme cuando quieras desde «Guía», en el menú.',
+    stepOf:'Paso {n} de 4', skipGuide:'Saltar guía', minimize:'Minimizar o abrir la guía',
+    kTitle:'¿Lo hacemos más a tu medida?',
+    kWhy:'Hasta ahora no sé nada de ti. Si me cuentas un poco, podré ajustar lo que hago a tu vida y a tu forma de hacer las cosas. Todo es opcional.',
+    kName:'¿Cómo quieres que te llame?', kNamePh:'Tu nombre',
+    kRole:'¿A qué te dedicas?', kRolePh:'Por ejemplo: profesora, autónomo, estudio enfermería',
+    kPlan:'¿Hay algo que te gustaría sacar adelante?', kPlanHint:'Puede ser del trabajo o de tu vida: no tiene por qué tener que ver con tu profesión.', kPlanPh:'Por ejemplo: preparar un viaje, aprender inglés, escribir un cuento',
+    kGoal:'¿Para qué te gustaría usarme?', goals:['Escribir mejor','Organizarme','Aprender cosas nuevas','Tener ideas','Planes y viajes','Aficiones y proyectos personales','Aprender sobre IA'],
+    pTitle:'Qué pasa con lo que me cuentas',
+    privacy:['Lo uso para personalizar mis respuestas.','Puedes verlo, cambiarlo o borrarlo cuando quieras desde Ajustes.','No necesito contraseñas, datos bancarios ni información de salud: mejor no compartirlos.','En esta demo no se guarda nada.'],
+    cont:'Continuar', noShare:'Prefiero no contarlo',
+    fTitle:'Empecemos por algo sencillo', fTitleName:'Empecemos por algo sencillo, {name}',
+    fBody:'Elige una idea o escríbeme lo que necesites, con tus palabras. No tiene que estar perfecto.',
+    fOr:'También puedes escribir tu propia petición en el cuadro del chat.',
+    tasks:['Organízame una semana tranquila','Escribe un email para pedir un día libre','Explícame la inteligencia artificial de forma sencilla','Dame 5 ideas para un regalo original'],
+    working:'Estoy en ello…', workingBody:'Mientras escribo, fíjate: el resultado va a aparecer en un espacio aparte, no en medio de la conversación.',
+    aTitle:'Esto es un artefacto',
+    aBody:'Cuando te preparo algo que vas a querer guardar, editar o compartir, como un documento, un plan o una pequeña herramienta, aparece en un espacio propio en lugar de perderse en la conversación. Puede combinar texto con diagramas, gráficos o pequeñas herramientas interactivas.',
+    aTip:'Puedes copiarlo y encontrarlo después en «Artefactos». Y lo mejor: puedes pedirme cambios. Vamos a probarlo.',
+    aErrTitle:'Algo importante', aErr:'A veces me equivoco, aunque suene convincente. Revisa lo que importe, como fechas, datos o nombres. Si ves un error, dímelo y lo corrijo: no pasa nada.',
+    tTitle:'Pídeme un cambio', tBody:'Casi nunca sale perfecto a la primera, y no hace falta. Dime qué cambiarías, como se lo dirías a una persona.',
+    tChips:['Hazlo más corto','Añade un consejo al final','Ponle un título más divertido'],
+    tOr:'O escribe tu propio cambio en el cuadro del chat, por ejemplo: «más formal» o «añade un ejemplo».',
+    tWorking:'Fíjate en el artefacto: lo actualizo en el mismo sitio.',
+    tdTitle:'¿Ves? No hace falta acertar a la primera', tdBody:'Puedes pedirme cambios tantas veces como quieras, con tus palabras. Es una conversación, no un examen.',
+    replyRev:'Hecho. Te he dejado la versión nueva en el mismo sitio.', version:'Artefacto, versión {n}',
+    tipExtra:'## Un consejo extra\nGuárdalo y vuelve a él mañana con otros ojos: siempre se ve algo que mejorar.', funTitle:'{t}, versión con chispa', yourChange:'## Tu cambio\nCon la conexión a Clawd, aquí aplicaría tu cambio: «{c}».',
+    openArt:'Ver el artefacto', next:'Entendido, sigamos',
+    rTitle:'¿Quieres que recuerde esto?',
+    rBody:'Lo que me contaste puede quedarse en tus instrucciones. Así no tendrás que repetirlo: lo tendré en cuenta en todas nuestras conversaciones.',
+    rLabel:'Instrucciones para Clawd',
+    rNote:'Además, puedo ir aprendiendo de nuestras conversaciones con la memoria. Tú decides si activarla, y puedes revisarla o borrarla cuando quieras.',
+    save:'Guardar instrucciones', saved:'Instrucciones guardadas', skipStep:'Ahora no',
+    instrName:'Me llamo {name}. ', instrRole:'Me dedico a: {role}. ', instrGoal:'Quiero usar Clawd para: {goals}. ', instrPlan:'Ahora mismo quiero sacar adelante: {plan}. ', planTask:'Ayúdame a empezar con: {plan}', instrBase:'Explícame las cosas de forma sencilla y sin tecnicismos.',
+    pjTitle:'Guárdalo en un proyecto',
+    pjBody:'Un proyecto es un espacio para un tema concreto. Guarda tus conversaciones, archivos e instrucciones propias, y cada vez que entras ya sé de qué va.',
+    pjEx:'Por ejemplo: «Mi mudanza», con presupuestos y listas, o «Clases de inglés», con tus apuntes.',
+    pjLabel:'Nombre del proyecto', pjDefault:'Mi primer proyecto', pjCreate:'Crear proyecto', pjCreated:'Proyecto creado',
+    dTitle:'Ya sabes lo esencial', dBody:'Hoy has aprendido a:',
+    dList:['Pedirme cosas con tus propias palabras','Usar artefactos para lo que quieres guardar','Dejarme instrucciones para no repetirte','Organizar tu trabajo en proyectos'],
+    dNext:'Para seguir, prueba a subir un documento y pedirme un resumen, o cuéntame algo que tengas pendiente esta semana.',
+    dRecall:'Si tienes dudas, llámame desde «Guía» o pregúntame directamente: «¿cómo funciona esto?».',
+    finish:'Empezar a usar Clawd',
+    resTitle:'¿Seguimos?', resBody:'Te quedaste en el paso {n}. Podemos continuar o empezar de cero.', resume:'Continuar donde lo dejé', restart:'Empezar de nuevo',
+    skipped:'Cuando quieras, llámame desde «Guía».', copied:'Copiado', copy:'Copiar', artifact:'Artefacto', docKind:'Documento',
+    genReal:'Generado por Clawd en directo.', genDemo:'Respuesta de ejemplo: la conexión con Clawd no está disponible en esta vista.',
+    reply:'Aquí lo tienes. Lo he dejado en un espacio aparte para que lo revises con calma.',
+    replyName:'Aquí lo tienes, {name}. Lo he dejado en un espacio aparte para que lo revises con calma.',
+    freeDemo:'Esta es una demo del onboarding. Para vivir la experiencia completa, abre la «Guía» en el menú.',
+    langName:'español de España'
+  },
+  en:{
+    newChat:'New chat', guide:'Guide', new:'New', chats:'Chats', projects:'Projects', artifacts:'Artifacts', recents:'Recents',
+    protoNote:'Onboarding prototype. Not the official Clawd app.',
+    greet:'How can I help you today?', greetName:'How can I help you today, {name}?', placeholder:'Message Clawd…', send:'Send', menu:'Open menu', close:'Close',
+    wTitle:'Hi, I’m Clawd',
+    wBody:'Nice to meet you. In a few minutes I’ll show you how to work with me by doing real things, no manuals. Don’t worry: you can’t break anything here.',
+    wStepsTitle:'What we’ll do',
+    steps:['Create your first result','Ask me for a change','Tell me a little about you','Save it in a project'],
+    wTime:'It takes about 5 minutes.', start:'Let’s start', notNow:'Not now',
+    wRecall:'If you’d rather explore on your own, you can call me any time from “Guide” in the menu.',
+    stepOf:'Step {n} of 4', skipGuide:'Skip guide', minimize:'Minimize or open the guide',
+    kTitle:'Shall we make it more yours?',
+    kWhy:'So far I know nothing about you. If you tell me a little, I can tailor what I do to your life and the way you do things. Everything is optional.',
+    kName:'What should I call you?', kNamePh:'Your name',
+    kRole:'What do you do?', kRolePh:'For example: teacher, freelancer, nursing student',
+    kPlan:'Is there something you’d like to get done?', kPlanHint:'It can be work or life: it doesn’t have to be related to your job.', kPlanPh:'For example: plan a trip, learn a language, write a short story',
+    kGoal:'What would you like to use me for?', goals:['Writing better','Getting organized','Learning new things','Coming up with ideas','Plans and trips','Hobbies and personal projects','Learning about AI'],
+    pTitle:'What happens with what you tell me',
+    privacy:['I use it to personalize my answers.','You can see, change or delete it any time in Settings.','I don’t need passwords, bank details or health information, so it’s best not to share them.','Nothing is saved in this demo.'],
+    cont:'Continue', noShare:'I’d rather not say',
+    fTitle:'Let’s start with something simple', fTitleName:'Let’s start with something simple, {name}',
+    fBody:'Pick an idea or tell me what you need, in your own words. It doesn’t have to be perfect.',
+    fOr:'You can also type your own request in the chat box.',
+    tasks:['Plan me a calm week','Write an email asking for a day off','Explain artificial intelligence simply','Give me 5 ideas for an original gift'],
+    working:'Working on it…', workingBody:'While I write, notice this: the result will appear in its own space, not in the middle of the conversation.',
+    aTitle:'This is an artifact',
+    aBody:'When I make something you’ll want to keep, edit or share, like a document, a plan or a small tool, it appears in its own space instead of getting lost in the conversation. It can combine text with diagrams, charts or small interactive tools.',
+    aTip:'You can copy it and find it later under “Artifacts”. And the best part: you can ask me for changes. Let’s try it.',
+    aErrTitle:'Something important', aErr:'Sometimes I get things wrong, even when I sound convincing. Check what matters, like dates, facts or names. If you spot a mistake, tell me and I’ll fix it: no harm done.',
+    tTitle:'Ask me for a change', tBody:'It rarely comes out perfect the first time, and it doesn’t have to. Tell me what you’d change, the way you’d tell a person.',
+    tChips:['Make it shorter','Add a tip at the end','Give it a more fun title'],
+    tOr:'Or type your own change in the chat box, for example: “more formal” or “add an example”.',
+    tWorking:'Watch the artifact: I’m updating it in place.',
+    tdTitle:'See? You don’t have to get it right the first time', tdBody:'You can ask me for changes as many times as you like, in your own words. It’s a conversation, not an exam.',
+    replyRev:'Done. The new version is in the same place.', version:'Artifact, version {n}',
+    tipExtra:'## One more tip\nSave it and come back tomorrow with fresh eyes: you’ll always spot something to improve.', funTitle:'{t}, with a spark', yourChange:'## Your change\nWith the connection to Clawd, this is where I’d apply your change: “{c}”.',
+    openArt:'Open the artifact', next:'Got it, let’s continue',
+    rTitle:'Want me to remember this?',
+    rBody:'What you told me can live in your instructions. That way you won’t need to repeat it: I’ll keep it in mind in every conversation.',
+    rLabel:'Instructions for Clawd',
+    rNote:'I can also learn from our conversations with memory. You decide whether to turn it on, and you can review or delete it any time.',
+    save:'Save instructions', saved:'Instructions saved', skipStep:'Not now',
+    instrName:'My name is {name}. ', instrRole:'I work as: {role}. ', instrGoal:'I want to use Clawd for: {goals}. ', instrPlan:'Right now I’d like to get this done: {plan}. ', planTask:'Help me get started with: {plan}', instrBase:'Explain things simply and without jargon.',
+    pjTitle:'Save it in a project',
+    pjBody:'A project is a space for one topic. It keeps your conversations, files and its own instructions, so every time you come back I already know what it’s about.',
+    pjEx:'For example: “My move”, with quotes and checklists, or “English classes”, with your notes.',
+    pjLabel:'Project name', pjDefault:'My first project', pjCreate:'Create project', pjCreated:'Project created',
+    dTitle:'You know the essentials', dBody:'Today you learned to:',
+    dList:['Ask me for things in your own words','Use artifacts for what you want to keep','Leave me instructions so you don’t repeat yourself','Organize your work in projects'],
+    dNext:'Next, try uploading a document and asking for a summary, or tell me about something on your to-do list this week.',
+    dRecall:'If you have questions, call me from “Guide” or just ask: “how does this work?”.',
+    finish:'Start using Clawd',
+    resTitle:'Shall we continue?', resBody:'You stopped at step {n}. We can pick up there or start over.', resume:'Continue where I left off', restart:'Start over',
+    skipped:'Whenever you like, call me from “Guide”.', copied:'Copied', copy:'Copy', artifact:'Artifact', docKind:'Document',
+    genReal:'Generated live by Clawd.', genDemo:'Sample answer: the connection to Clawd isn’t available in this view.',
+    reply:'Here it is. I’ve put it in its own space so you can look it over calmly.',
+    replyName:'Here it is, {name}. I’ve put it in its own space so you can look it over calmly.',
+    freeDemo:'This is an onboarding demo. For the full experience, open “Guide” in the menu.',
+    langName:'English'
+  }
+};
+let lang = ([navigator.language, ...(navigator.languages || [])].some(l => (l || '').toLowerCase().startsWith('es'))) ? 'es' : 'en';
+const L = () => I18N[lang];
+function t(k, v){ let s = L()[k] ?? I18N.en[k] ?? k; if (v) s = s.replace(/\{(\w+)\}/g, (m,p) => v[p] ?? ''); return s; }
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+const $ = s => document.querySelector(s);
+/* ================= v2: extra texts ================= */
+const EXTRA = {
+  es:{
+    stepOf:'Paso {n} de {total}',
+    prefTitle:'Antes de empezar, ¿qué te resulta más cómodo?',
+    prefs:{large:'Letra más grande', slow:'Ir más despacio', voice:'Prefiero hablar a escribir'},
+    prefHint:'Puedes cambiarlo cuando quieras desde el menú.',
+    comfort:'Comodidad',
+    voiceTip:'Consejo: pulsa el micrófono del cuadro del chat y dímelo en voz alta.',
+    voiceNo:'Tu navegador no permite dictar en esta demo. En la app de Clawd para móvil puedes hablarle directamente.',
+    micOn:'Te escucho…', mic:'Dictar con la voz',
+    program:'Tu mes con Clawd',
+    dProgram:'Si quieres, te acompaño durante un mes con pequeños retos de 5 minutos para descubrir más cosas, a tu ritmo.',
+    seeProgram:'Ver mi programa de un mes',
+    pgTitle:'Tu mes con Clawd',
+    pgIntro:'Un reto pequeño cada pocos días. Sin prisas ni rachas: si un día no puedes, el reto te espera.',
+    pgToday:'Hoy es el día {d} de 30',
+    pgSim:'Simulación de la demo', pgSimBody:'En la app real, estos avisos te llegarían como notificación o correo. Aquí puedes adelantar el tiempo.',
+    pgNext:'Avanzar al siguiente reto', pgReset:'Volver al día 1',
+    pgPause:'Pausar el programa', pgResume:'Reanudar el programa', pgPaused:'Programa en pausa: no te enviaré avisos hasta que lo reanudes.',
+    pgTry:'Probar ahora', pgDone:'Hecho', pgLocked:'Disponible el día {d}', pgDay:'Día {d}',
+    newChallenge:'Tienes un reto nuevo en «Tu mes con Clawd»',
+    weeks:['Semana 1: lo básico','Semana 2: tus documentos','Semana 3: voz, actualidad y seguridad','Semana 4: hazlo tuyo'],
+    coursesTitle:'Para ir más lejos',
+    coursesIntro:'Cursos gratuitos de Clawd Academy, de Anthropic. Están en inglés; la práctica que te preparo va en tu idioma y con tus propios ejemplos.',
+    cOpen:'Abrir el curso', cPractice:'Practicar con mi caso', cLocked:'Se desbloquea: {w}', cEn:'En inglés',
+    exampleBtn:'Probar con este ejemplo', ownOr:'O escribe el tuyo en el cuadro del chat.',
+    mWorking:'Estoy en ello…',
+    mDoneTitle:'¡Reto completado!', mDoneBody:'Cada reto que haces es una cosa más que sabes hacer sin ayuda.', mNext:'El próximo reto llega el día {d}.', mLast:'Has llegado al final del mes.', backProgram:'Volver a mi mes',
+    projName:'Nombre del proyecto', projCreate:'Crear proyecto',
+    instrSave:'Guardar cambios',
+    closeTitle:'Tu mes, en resumen', closeBody:'Esto es todo lo que has probado:', closeNone:'Todavía no has hecho ningún reto, pero puedes empezar cuando quieras.', closeEnd:'A partir de aquí, sigue a tu ritmo. Y si tienes dudas, pregúntame: «¿cómo hago esto?».',
+    doneMark:'Marcar como hecho',
+    practiceFallback:'# Tu práctica: {c}\n1. **Aplícalo a algo tuyo:** elige una tarea que tengas pendiente{p} y pídemela con tus palabras.\n2. **Dame contexto:** repite la petición contándome para quién es y para qué. Compara las dos respuestas.\n3. **Revisa y corrige:** busca algo que no te convenza y pídeme que lo cambie.\n## Qué observar\nFíjate en cómo cambia el resultado cuando me das más contexto.'
+  },
+  en:{
+    stepOf:'Step {n} of {total}',
+    prefTitle:'Before we start, what’s most comfortable for you?',
+    prefs:{large:'Larger text', slow:'Go more slowly', voice:'I’d rather speak than type'},
+    prefHint:'You can change this any time from the menu.',
+    comfort:'Comfort',
+    voiceTip:'Tip: tap the microphone in the chat box and say it out loud.',
+    voiceNo:'Your browser doesn’t allow dictation in this demo. In the Clawd mobile app you can talk to it directly.',
+    micOn:'Listening…', mic:'Dictate with your voice',
+    program:'Your month with Clawd',
+    dProgram:'If you like, I’ll keep you company for a month with small 5-minute challenges to discover more, at your pace.',
+    seeProgram:'See my one-month program',
+    pgTitle:'Your month with Clawd',
+    pgIntro:'A small challenge every few days. No rush, no streaks: if you can’t make it one day, the challenge waits for you.',
+    pgToday:'Today is day {d} of 30',
+    pgSim:'Demo simulation', pgSimBody:'In the real app, these nudges would reach you as a notification or email. Here you can move time forward.',
+    pgNext:'Skip to the next challenge', pgReset:'Back to day 1',
+    pgPause:'Pause the program', pgResume:'Resume the program', pgPaused:'Program paused: I won’t send you nudges until you resume it.',
+    pgTry:'Try it now', pgDone:'Done', pgLocked:'Available on day {d}', pgDay:'Day {d}',
+    newChallenge:'You have a new challenge in “Your month with Clawd”',
+    weeks:['Week 1: the basics','Week 2: your documents','Week 3: voice, current info and safety','Week 4: make it yours'],
+    coursesTitle:'To go further',
+    coursesIntro:'Free courses from Clawd Academy, by Anthropic. The practice I prepare for you uses your own examples.',
+    cOpen:'Open the course', cPractice:'Practice with my case', cLocked:'Unlocks: {w}', cEn:'In English',
+    exampleBtn:'Try this example', ownOr:'Or type your own in the chat box.',
+    mWorking:'Working on it…',
+    mDoneTitle:'Challenge complete!', mDoneBody:'Every challenge you do is one more thing you can do on your own.', mNext:'The next challenge arrives on day {d}.', mLast:'You’ve reached the end of the month.', backProgram:'Back to my month',
+    projName:'Project name', projCreate:'Create project',
+    instrSave:'Save changes',
+    closeTitle:'Your month, in summary', closeBody:'Here’s everything you tried:', closeNone:'You haven’t done any challenges yet, but you can start whenever you like.', closeEnd:'From here, keep going at your own pace. And if you’re unsure, just ask me: “how do I do this?”.',
+    doneMark:'Mark as done',
+    practiceFallback:'# Your practice: {c}\n1. **Apply it to something of yours:** pick a task you have pending{p} and ask me for it in your own words.\n2. **Give me context:** repeat the request telling me who it’s for and why. Compare both answers.\n3. **Review and correct:** find something you don’t like and ask me to change it.\n## What to notice\nSee how the result changes when you give me more context.'
+  }
+};
+Object.assign(I18N.es, EXTRA.es); Object.assign(I18N.en, EXTRA.en);
+
+const MISSIONS = {
+  es:[
+    {id:'first', day:1, title:'Tu primer resultado', why:'Lo hiciste en la guía de bienvenida.', kind:'auto'},
+    {id:'daily', day:3, title:'Pregúntame algo de tu día a día', why:'Lo que hoy buscarías en internet, pregúntamelo a mí.', kind:'chat', prompt:'¿Qué puedo cocinar para cenar con huevos, patatas y espinacas?', fb:'Con eso te sale una tortilla de patatas con espinacas: pocha las patatas, saltea las espinacas, mézclalo todo con los huevos batidos y cuájala por los dos lados. Si me dices cuánto tiempo tienes, te propongo otra opción.'},
+    {id:'explain', day:5, title:'Pídeme que te explique algo difícil', why:'Te explico cualquier tema al nivel que tú quieras.', kind:'chat', prompt:'Explícame qué es la inflación con un ejemplo de la vida diaria.', fb:'La inflación es cuando, con el mismo dinero, puedes comprar menos cosas que antes. Si tu compra semanal costaba 50 € y ahora la misma compra cuesta 53 €, los precios han subido un 6 %: tu dinero rinde un poco menos.'},
+    {id:'letter', day:8, title:'Entiende un documento', why:'Cartas, facturas o contratos: te los explico en palabras sencillas.', kind:'doc', prompt:'Explícame en palabras sencillas esta carta: «Le informamos de que, a partir del 1 de noviembre, la cuota mensual de su servicio pasará de 29,90 € a 32,90 €. Si no está conforme, podrá darse de baja sin penalización antes de esa fecha.»', fb:'# Qué dice tu carta\n```diagram\n{"type":"flow","title":"Lo esencial","items":["Tu cuota sube 3 € al mes","Empieza el 1 de noviembre","Si no te conviene, puedes darte de baja","Sin penalización, antes de esa fecha"]}\n```\n## Qué puedes hacer\n- Si te compensa, no tienes que hacer nada\n- Si no, compara otras opciones y date de baja antes del 1 de noviembre\n## Un consejo\nEn la app de Clawd puedes subir la carta en foto o PDF y te la explico igual.'},
+    {id:'summary', day:10, title:'Resume algo largo', why:'Te ahorro tiempo con lo que no te apetece leer entero.', kind:'doc', prompt:'Resúmeme en tres puntos qué conviene revisar antes de firmar un contrato de alquiler.', fb:'# Antes de firmar un alquiler\n1. **Los números:** renta, fianza, gastos de comunidad y suministros.\n2. **El contrato:** duración, subidas previstas y quién paga cada reparación.\n3. **La vivienda:** fotos del estado al entrar y comprobar que todo funciona.'},
+    {id:'review', day:12, title:'Revisa un texto tuyo', why:'Te ayudo a que tus mensajes digan lo que quieres decir.', kind:'chat', prompt:'Mejora este mensaje para que suene amable pero claro: «Oye, que el viernes no puedo ir a la cena, ya lo siento.»', fb:'Una versión: «¡Hola! Al final el viernes no voy a poder ir a la cena, me da mucha pena. ¡Que lo paséis genial y a ver si quedamos pronto!». ¿La quieres más formal o más corta?'},
+    {id:'voice', day:15, title:'Háblame en voz alta', why:'Si escribir te cuesta, puedes hablarme. En la app del móvil, pulsa el micrófono.', kind:'chat', voice:true, prompt:'Dame un plan sencillo para caminar un poco más cada día.', fb:'Empieza con 10 minutos al día, por ejemplo después de comer, durante una semana. La siguiente, sube a 15. Busca una ruta agradable o queda con alguien: así cuesta menos mantenerlo.'},
+    {id:'current', day:17, title:'Pregúntame por algo actual', why:'En la app puedo buscar en internet y enseñarte de dónde sale cada dato.', kind:'chat', prompt:'¿Cómo sé si la información que me das está actualizada?', fb:'Buena pregunta. Lo que sé viene de mi entrenamiento, que tiene una fecha límite. Para temas que cambian, como noticias, precios u horarios, pídeme que lo busque en internet: en la app puedo hacerlo y te digo de dónde sale cada dato.'},
+    {id:'scam', day:19, title:'Aprende a detectar estafas', why:'Enséñame un mensaje sospechoso y te digo qué señales mirar.', kind:'doc', prompt:'¿Es una estafa este SMS?: «Su paquete está retenido. Pague 1,99 € de gastos de envío aquí: bit.ly/xxxx»', fb:'# Señales de estafa en este SMS\n```diagram\n{"type":"compare","title":"Cómo distinguirlo","left":{"title":"Sospechoso","items":["Te mete prisa","Pide un pago pequeño","Enlace acortado"]},"right":{"title":"Lo seguro","items":["Entra tú en la web oficial","No pagues desde un SMS","Si dudas, pregunta"]}}\n```\n## Qué hacer\n- No pulses el enlace\n- Si esperas un paquete, consúltalo en la web o la app oficial de la empresa\n- Borra el mensaje'},
+    {id:'project', day:22, title:'Crea un proyecto para algo tuyo', why:'Un espacio para un tema que te importe, con todo a mano.', kind:'project'},
+    {id:'instr', day:25, title:'Repasa tus instrucciones', why:'Ahora que me conoces mejor, ajusta lo que quieres que tenga en cuenta.', kind:'instr'},
+    {id:'own', day:28, title:'Tu propio reto', why:'Elige algo que tengas pendiente y hazlo conmigo de principio a fin.', kind:'own'},
+    {id:'close', day:30, title:'Cierre del mes', why:'Mira todo lo que has aprendido.', kind:'close'}
+  ],
+  en:[
+    {id:'first', day:1, title:'Your first result', why:'You did it in the welcome guide.', kind:'auto'},
+    {id:'daily', day:3, title:'Ask me something from your daily life', why:'Whatever you’d search online today, ask me instead.', kind:'chat', prompt:'What can I cook for dinner with eggs, potatoes and spinach?', fb:'You can make a potato and spinach omelette: cook the potatoes gently, sauté the spinach, mix everything with beaten eggs and cook it on both sides. Tell me how much time you have and I’ll suggest another option.'},
+    {id:'explain', day:5, title:'Ask me to explain something hard', why:'I can explain any topic at whatever level you like.', kind:'chat', prompt:'Explain inflation with an everyday example.', fb:'Inflation is when the same money buys you fewer things than before. If your weekly shop cost 50 and the same shop now costs 53, prices went up 6%: your money stretches a little less.'},
+    {id:'letter', day:8, title:'Understand a document', why:'Letters, bills or contracts: I’ll explain them in plain words.', kind:'doc', prompt:'Explain this letter in plain words: “We inform you that from 1 November, your monthly fee will rise from 29.90 to 32.90. If you do not agree, you may cancel without penalty before that date.”', fb:'# What your letter says\n```diagram\n{"type":"flow","title":"The essentials","items":["Your fee goes up 3 a month","Starts on 1 November","You can cancel if it doesn’t suit you","No penalty, before that date"]}\n```\n## What you can do\n- If it’s worth it, you don’t need to do anything\n- If not, compare other options and cancel before 1 November\n## A tip\nIn the Clawd app you can upload the letter as a photo or PDF and I’ll explain it the same way.'},
+    {id:'summary', day:10, title:'Summarize something long', why:'I save you time on things you don’t feel like reading in full.', kind:'doc', prompt:'Summarize in three points what to check before signing a rental contract.', fb:'# Before signing a rental\n1. **The numbers:** rent, deposit, fees and utilities.\n2. **The contract:** length, planned increases and who pays for repairs.\n3. **The home:** photos of its condition on moving in, and check everything works.'},
+    {id:'review', day:12, title:'Review a text of yours', why:'I’ll help your messages say what you mean.', kind:'chat', prompt:'Make this message kind but clear: “Hey, can’t make Friday’s dinner, sorry.”', fb:'One version: “Hi! I won’t be able to make Friday’s dinner after all, which is a real shame. Have a great time and let’s catch up soon!”. Want it more formal or shorter?'},
+    {id:'voice', day:15, title:'Talk to me out loud', why:'If typing is a chore, you can talk to me. In the mobile app, tap the microphone.', kind:'chat', voice:true, prompt:'Give me a simple plan to walk a bit more every day.', fb:'Start with 10 minutes a day, for example after lunch, for one week. The next week, go up to 15. Find a pleasant route or go with someone: it’s easier to keep up.'},
+    {id:'current', day:17, title:'Ask me about something current', why:'In the app I can search the web and show you where each fact comes from.', kind:'chat', prompt:'How do I know if the information you give me is up to date?', fb:'Good question. What I know comes from my training, which has a cut-off date. For things that change, like news, prices or opening hours, ask me to search the web: in the app I can do that and tell you where each fact comes from.'},
+    {id:'scam', day:19, title:'Learn to spot scams', why:'Show me a suspicious message and I’ll tell you which signs to look for.', kind:'doc', prompt:'Is this text message a scam?: “Your parcel is on hold. Pay 1.99 shipping here: bit.ly/xxxx”', fb:'# Scam signs in this message\n```diagram\n{"type":"compare","title":"How to tell","left":{"title":"Suspicious","items":["Rushes you","Asks for a small payment","Shortened link"]},"right":{"title":"Safe","items":["Go to the official site yourself","Never pay from a text","If unsure, ask"]}}\n```\n## What to do\n- Don’t tap the link\n- If you’re expecting a parcel, check the company’s official site or app\n- Delete the message'},
+    {id:'project', day:22, title:'Create a project for something of yours', why:'A space for a topic you care about, with everything at hand.', kind:'project'},
+    {id:'instr', day:25, title:'Review your instructions', why:'Now that I know you better, adjust what you want me to keep in mind.', kind:'instr'},
+    {id:'own', day:28, title:'Your own challenge', why:'Pick something you have pending and do it with me from start to finish.', kind:'own'},
+    {id:'close', day:30, title:'End of the month', why:'See everything you’ve learned.', kind:'close'}
+  ]
+};
+const COURSES = [
+  {id:'tut', name:'Getting started with Clawd', url:'https://academy.claude.com/tutorials/getting-started-with-claude', len:{es:'5 min',en:'5 min'},
+   desc:{es:'Tutorial corto: tu primer prompt, qué puede hacer Clawd y cómo preparar una tarea con tus archivos.',en:'Short tutorial: your first prompt, what Clawd can do and how to set up a task with your files.'},
+   unlock:()=>S.day>=8, when:{es:'en la semana 2',en:'in week 2'},
+   practice:{es:'Hazme 3 ejercicios cortos para practicar lo básico de Clawd (pedir algo, darle contexto y pedirle cambios) aplicados a mi vida.',en:'Make me 3 short exercises to practice Clawd basics (asking for something, giving context and asking for changes) applied to my life.'}},
+  {id:'fluency', name:'AI Fluency: Framework and foundations', url:'https://academy.claude.com/courses/ai-fluency-framework-foundations', len:{es:'14 lecciones, unas 4 h',en:'14 lessons, about 4 h'},
+   desc:{es:'Cómo colaborar bien con la IA con cuatro ideas: delegar, describir, evaluar el resultado y usarla con responsabilidad.',en:'How to work well with AI through four ideas: delegating, describing, evaluating the result and using it responsibly.'},
+   unlock:()=>S.day>=10 && S.done.size>=4, when:{es:'a mitad de mes, con 4 retos hechos',en:'mid-month, after 4 challenges'},
+   practice:{es:'Hazme 3 ejercicios cortos para practicar las cuatro ideas del curso AI Fluency (delegar tareas en la IA, describir bien lo que quiero, evaluar lo que me devuelve y usarla con responsabilidad) aplicados a mi vida.',en:'Make me 3 short exercises to practice the four ideas of the AI Fluency course (delegating to AI, describing what I want well, evaluating what it gives back and using it responsibly) applied to my life.'}},
+  {id:'limits', name:'AI capabilities and limitations', url:'https://academy.claude.com/courses/ai-capabilities-and-limitations', len:{es:'13 lecciones, unas 3,5 h',en:'13 lessons, about 3.5 h'},
+   desc:{es:'Qué puede y qué no puede hacer un modelo de IA, explicado para entenderlo de verdad.',en:'What an AI model can and can’t do, explained so you really understand it.'},
+   unlock:()=>S.day>=22, when:{es:'en la semana 4',en:'in week 4'},
+   practice:{es:'Hazme 3 ejercicios cortos para comprobar por mí mismo qué hace bien y qué hace mal la IA (errores, información desactualizada, datos inventados), aplicados a mi vida.',en:'Make me 3 short exercises to check for myself what AI does well and badly (mistakes, outdated information, made-up facts), applied to my life.'}}
+];
+const M = () => MISSIONS[lang];
+const mission = id => M().find(m => m.id === id);
+
+/* ================= v2: preferences ================= */
+function applyPrefs(){
+  document.body.classList.toggle('large', S.prefs.large);
+  document.body.classList.toggle('pref-voice', S.prefs.voice);
+  document.querySelectorAll('[data-pref]').forEach(b => b.setAttribute('aria-pressed', !!S.prefs[b.dataset.pref]));
+}
+function prefChips(){
+  return `<div class="chips" role="group">${['large','slow','voice'].map(k => `<button class="chip" data-pref="${k}" aria-pressed="${!!S.prefs[k]}">${esc(L().prefs[k])}</button>`).join('')}</div>`;
+}
+function totalSteps(){ return S.prefs.slow ? 3 : 4; }
+function renderSidePrefs(){
+  $('#sidePrefs').innerHTML = `<p class="side-comfort">${esc(t('comfort'))}</p>${prefChips()}`;
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-pref]'); if (!b) return;
+  const k = b.dataset.pref; S.prefs[k] = !S.prefs[k];
+  applyPrefs();
+  if (k === 'slow' && !$('#welcome').hidden) showWelcome();
+  if (k === 'slow' || k === 'voice') renderCoach();
+});
+
+/* ================= v2: voice ================= */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null;
+function toggleMic(){
+  if (!SR){ toast(t('voiceNo')); return; }
+  if (rec){ rec.stop(); return; }
+  try{
+    rec = new SR(); rec.lang = lang === 'es' ? 'es-ES' : 'en-US'; rec.interimResults = true;
+    const base = $('#input').value ? $('#input').value + ' ' : '';
+    rec.onresult = ev => { let txt = ''; for (const r of ev.results) txt += r[0].transcript; $('#input').value = base + txt; $('#input').dispatchEvent(new Event('input')); };
+    rec.onerror = () => toast(t('voiceNo'));
+    rec.onend = () => { rec = null; $('#mic').classList.remove('on'); $('#input').placeholder = t('placeholder'); };
+    rec.start(); $('#mic').classList.add('on'); $('#input').placeholder = t('micOn');
+  }catch(err){ rec = null; toast(t('voiceNo')); }
+}
+
+/* ================= v2: program ================= */
+function available(){ return M().filter(m => m.day <= S.day && !S.done.has(m.id)); }
+function nextDay(){ const n = M().find(m => m.day > S.day); return n ? n.day : null; }
+function updateBadge(){
+  const n = S.paused ? 0 : available().length;
+  const b = $('#progBadge'); b.textContent = n; b.hidden = !n;
+}
+function showProgram(){
+  S.view = 'program';
+  $('#programView').hidden = false; $('#thread').hidden = true; $('.composer-wrap').hidden = true;
+  closeArtifact(); document.body.classList.remove('side-open');
+  renderProgram();
+}
+function showChat(){
+  S.view = 'chat';
+  $('#programView').hidden = true; $('#thread').hidden = false; $('.composer-wrap').hidden = false;
+}
+function weekOf(d){ return d <= 7 ? 0 : d <= 14 ? 1 : d <= 21 ? 2 : 3; }
+function renderProgram(){
+  const ms = M();
+  let weeks = '';
+  for (let w = 0; w < 4; w++){
+    const rows = ms.filter(m => weekOf(m.day) === w).map(m => {
+      const done = S.done.has(m.id), open = m.day <= S.day;
+      const state = done ? `<span class="m-state done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>${esc(t('pgDone'))}</span>`
+        : open ? `<button class="btn btn-primary btn-sm" data-m="${m.id}">${esc(t('pgTry'))}</button>`
+        : `<span class="m-state">${esc(t('pgLocked',{d:m.day}))}</span>`;
+      return `<li class="mission ${done ? 'is-done' : open ? 'is-open' : 'is-locked'}"><span class="m-day">${esc(t('pgDay',{d:m.day}))}</span><div class="m-text"><strong>${esc(m.title)}</strong><span>${esc(m.why)}</span></div>${state}</li>`;
+    }).join('');
+    weeks += `<section class="week"><h2>${esc(L().weeks[w])}</h2><ul class="missions">${rows}</ul></section>`;
+  }
+  const courses = COURSES.map(c => {
+    const on = c.unlock();
+    return `<article class="course ${on ? '' : 'locked'}">
+      <div class="c-top"><strong>${esc(c.name)}</strong><span>${esc(c.len[lang])}. ${esc(t('cEn'))}</span></div>
+      <p>${esc(c.desc[lang])}</p>
+      ${on ? `<div class="c-actions"><a class="btn btn-quiet-lg" href="${c.url}" target="_blank" rel="noopener">${esc(t('cOpen'))}</a><button class="btn btn-primary btn-sm" data-c="${c.id}">${esc(t('cPractice'))}</button></div>`
+           : `<p class="m-state">${esc(t('cLocked',{w:c.when[lang]}))}</p>`}
+    </article>`;
+  }).join('');
+  $('#programView').innerHTML = `<div class="prog-inner">
+    <h1>${esc(t('pgTitle'))}</h1>
+    <p class="soft">${esc(t('pgIntro'))}</p>
+    <div class="today"><div class="today-bar"><i style="width:${Math.round(S.day/30*100)}%"></i></div><strong>${esc(t('pgToday',{d:S.day}))}</strong></div>
+    ${S.paused ? `<p class="paused">${esc(t('pgPaused'))}</p>` : ''}
+    <div class="sim"><strong>${esc(t('pgSim'))}</strong><p>${esc(t('pgSimBody'))}</p>
+      <div class="sim-actions">
+        <button class="btn btn-primary btn-sm" data-p="next" ${nextDay() ? '' : 'disabled'}>${esc(t('pgNext'))}</button>
+        <button class="btn btn-ghost btn-sm" data-p="pause">${esc(S.paused ? t('pgResume') : t('pgPause'))}</button>
+        <button class="btn btn-ghost btn-sm" data-p="reset">${esc(t('pgReset'))}</button>
+      </div></div>
+    ${weeks}
+    <section class="week"><h2>${esc(t('coursesTitle'))}</h2><p class="soft">${esc(t('coursesIntro'))}</p><div class="courses">${courses}</div></section>
+  </div>`;
+  updateBadge();
+}
+function advance(){
+  const n = nextDay(); if (!n) return;
+  S.day = n; renderProgram();
+  if (!S.paused){ toast(t('newChallenge')); pulse($('#progItem')); }
+}
+$('#programView').addEventListener('click', e => {
+  const p = e.target.closest('[data-p]');
+  if (p){
+    if (p.dataset.p === 'next') advance();
+    if (p.dataset.p === 'pause'){ S.paused = !S.paused; renderProgram(); }
+    if (p.dataset.p === 'reset'){ S.day = 1; S.done = new Set(S.firstDone ? ['first'] : []); renderProgram(); }
+    return;
+  }
+  const m = e.target.closest('[data-m]'); if (m){ startMission(m.dataset.m); return; }
+  const c = e.target.closest('[data-c]'); if (c){ practice(c.dataset.c); }
+});
+function startMission(id){
+  const m = mission(id); if (!m) return;
+  S.mission = id;
+  if (m.kind === 'close' || m.kind === 'project' || m.kind === 'instr') showProgram(); else showChat();
+  S.step = 'mission'; openGuide();
+}
+function missionBody(){
+  const m = mission(S.mission); if (!m) return '';
+  let extra = '';
+  if (m.kind === 'chat' || m.kind === 'doc'){
+    extra = `<div class="tasks"><button class="task" data-a="mEx">${esc(m.prompt)}</button></div><p class="soft">${esc(t('ownOr'))}</p>`;
+    if (m.voice || S.prefs.voice) extra += `<p class="soft">${esc(SR ? t('voiceTip') : t('voiceNo'))}</p>`;
+  } else if (m.kind === 'own'){
+    extra = `<p class="soft">${esc(t('ownOr'))}</p>` + (S.prefs.voice ? `<p class="soft">${esc(SR ? t('voiceTip') : t('voiceNo'))}</p>` : '');
+  } else if (m.kind === 'project'){
+    extra = `<p class="soft">${esc(t('pjBody'))}</p><div class="field"><label for="mProj">${esc(t('projName'))}</label><input id="mProj" value="${esc(t('pjDefault'))}"></div><div class="actions"><button class="btn btn-primary" data-a="mProj">${esc(t('projCreate'))}</button></div>`;
+  } else if (m.kind === 'instr'){
+    extra = `<div class="field"><label for="mInstr">${esc(t('rLabel'))}</label><textarea id="mInstr">${esc(S.instructions || buildInstructions())}</textarea></div><div class="actions"><button class="btn btn-primary" data-a="mInstr">${esc(t('instrSave'))}</button></div>`;
+  } else if (m.kind === 'close'){
+    const done = M().filter(x => S.done.has(x.id) && x.id !== 'close');
+    extra = done.length ? `<p>${esc(t('closeBody'))}</p><ul class="done-list">${done.map(x => `<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg><span>${esc(x.title)}</span></li>`).join('')}</ul>` : `<p>${esc(t('closeNone'))}</p>`;
+    extra += `<p class="soft">${esc(t('closeEnd'))}</p><div class="actions"><button class="btn btn-primary" data-a="mClose">${esc(t('doneMark'))}</button></div>`;
+  }
+  return `<h2>${esc(m.title)}</h2><p>${esc(m.why)}</p>${extra}`;
+}
+async function runMission(text){
+  const m = mission(S.mission); if (!m || S.busy) return;
+  showChat(); go('missionWorking');
+  if (m.kind === 'chat') await freeChat(text, m.fb);
+  else await runTask(text, -1, m.kind === 'doc' ? m.fb : null);
+  finishMission();
+}
+function finishMission(){
+  S.done.add(S.mission); updateBadge();
+  if (S.view === 'program') renderProgram();
+  go('missionDone');
+}
+function missionDoneBody(){
+  const n = nextDay();
+  return `<h2>${esc(t('mDoneTitle'))}</h2><p>${esc(t('mDoneBody'))}</p><p class="soft">${esc(n ? t('mNext',{d:n}) : t('mLast'))}</p>
+    <div class="actions"><button class="btn btn-primary" data-a="toProgram">${esc(t('backProgram'))}</button></div>`;
+}
+async function practice(cid){
+  const c = COURSES.find(x => x.id === cid); if (!c) return;
+  showChat();
+  const plan = S.profile.plan ? (lang === 'es' ? ` (por ejemplo: ${S.profile.plan})` : ` (for example: ${S.profile.plan})`) : '';
+  await runTask(c.practice[lang], -1, t('practiceFallback',{c:c.name, p:plan}));
+}
+
+
+/* ================= sample answers (fallback) ================= */
+const SCRIPT = {
+  es:[
+    n => `# ${n ? 'La semana de ' + n + ', con calma' : 'Tu semana, con calma'}\n\`\`\`diagram\n{"type":"flow","title":"La semana de un vistazo","items":["Lunes: elegir 3 prioridades","Martes y miércoles: concentración","Jueves: terminar pendientes","Viernes: repasar y cerrar"]}\n\`\`\`\n## Lunes\n- Revisa tus pendientes y elige las tres tareas más importantes\n- Deja 30 minutos libres por la tarde\n## Martes y miércoles\n- Dedica las mañanas a lo que requiere más concentración\n- Agrupa llamadas y mensajes en un solo bloque\n## Jueves\n- Avanza lo que se quedó a medias\n## Viernes\n- Cierra la semana: repasa qué ha ido bien y qué pasa a la siguiente\n## Un consejo\nSi me cuentas tus tareas reales, te hago un plan a tu medida.`,
+    n => `# Email para pedir un día libre\n\`\`\`diagram\n{"type":"flow","title":"Cómo está construido","items":["Asunto claro","La petición, al principio","Cómo quedará cubierto tu trabajo","Un cierre abierto y amable"]}\n\`\`\`\n**Asunto:** Solicitud de día libre el [fecha]\n\nHola, [nombre]:\n\nTe escribo para pedirte el día libre el [fecha]. He organizado mi trabajo para que no quede nada pendiente: [tarea] estará terminada antes y [compañero] puede cubrir cualquier urgencia.\n\n¿Te parece bien? Si prefieres otro día, dímelo sin problema.\n\nUn saludo,\n${n || '[tu nombre]'}`,
+    () => `# La inteligencia artificial, explicada fácil\nImagina a alguien que ha leído muchísimos libros, webs y conversaciones. De tanto leer, ha aprendido cómo suelen encajar las palabras y las ideas.\n\`\`\`diagram\n{"type":"compare","title":"Sus puntos fuertes y débiles","left":{"title":"Hace bien","items":["Escribir y resumir","Explicar paso a paso","Dar ideas"]},"right":{"title":"Hace peor","items":["A veces se equivoca","No sabe lo que no le cuentas"]}}\n\`\`\`\n## Por qué revisar lo importante\nPuede sonar muy segura aunque se equivoque, así que conviene comprobar datos y fechas que importen.\n## Cómo usarla\nHáblale como a una persona: explícale qué necesitas y para qué.`,
+    () => `# 5 ideas para un regalo original\n1. **Una experiencia juntos:** una clase de cocina, de cerámica o una cata.\n2. **Un álbum de recuerdos** con fotos y notas escritas a mano.\n3. **Una suscripción** a algo que le encante: libros, café o flores.\n4. **Algo hecho por ti:** una receta especial, una lista de canciones o una carta.\n5. **Un vale** con planes para hacer juntos durante el año.\n## Para acertar más\nCuéntame sus gustos y te propongo ideas más concretas.`
+  ],
+  en:[
+    n => `# ${n ? n + '’s calm week' : 'Your calm week'}\n\`\`\`diagram\n{"type":"flow","title":"The week at a glance","items":["Monday: pick 3 priorities","Tue and Wed: focus time","Thursday: finish pending work","Friday: review and wrap up"]}\n\`\`\`\n## Monday\n- Review your to-dos and pick the three most important\n- Keep 30 free minutes in the afternoon\n## Tuesday and Wednesday\n- Use mornings for work that needs the most focus\n- Batch calls and messages into one block\n## Thursday\n- Move forward whatever was left half-done\n## Friday\n- Wrap up: review what went well and what moves to next week\n## One tip\nTell me your real tasks and I’ll make a plan that fits you.`,
+    n => `# Email asking for a day off\n\`\`\`diagram\n{"type":"flow","title":"How it's built","items":["A clear subject line","The request, up front","How your work is covered","A friendly, open close"]}\n\`\`\`\n**Subject:** Day off request for [date]\n\nHi [name],\n\nI’d like to request [date] off. I’ve planned my work so nothing is left pending: [task] will be finished beforehand and [colleague] can cover anything urgent.\n\nDoes that work for you? If another day suits better, just let me know.\n\nBest,\n${n || '[your name]'}`,
+    () => `# Artificial intelligence, simply explained\nImagine someone who has read a huge number of books, websites and conversations. From all that reading, they’ve learned how words and ideas usually fit together.\n\`\`\`diagram\n{"type":"compare","title":"Strengths and weak spots","left":{"title":"Does well","items":["Writing and summarizing","Explaining step by step","Giving ideas"]},"right":{"title":"Does less well","items":["Sometimes gets it wrong","Doesn't know what you don't say"]}}\n\`\`\`\n## Why double-check what matters\nIt can sound very sure even when it's wrong, so check facts and dates that matter.\n## How to use it\nTalk to it like a person: explain what you need and why.`,
+    () => `# 5 ideas for an original gift\n1. **An experience together:** a cooking or pottery class, or a tasting.\n2. **A memory album** with photos and handwritten notes.\n3. **A subscription** to something they love: books, coffee or flowers.\n4. **Something you made:** a special recipe, a playlist or a letter.\n5. **A voucher** for plans to do together during the year.\n## To get it just right\nTell me what they like and I’ll suggest more specific ideas.`
+  ]
+};
+function scripted(idx, task){
+  const n = S.profile.name;
+  if (idx >= 0) return SCRIPT[lang][idx](n);
+  return lang === 'es'
+    ? `# ${task}\nAquí tendrías el resultado completo de tu petición.\n## Cómo seguir\n- Pídeme cambios con tus palabras: «más corto», «más formal», «añade un ejemplo»\n- Si algo no encaja, dímelo y lo ajusto`
+    : `# ${task}\nThis is where the full result of your request would appear.\n## How to continue\n- Ask me for changes in your own words: “shorter”, “more formal”, “add an example”\n- If something doesn’t fit, tell me and I’ll adjust it`;
+}
+
+/* ================= mascot ================= */
+function mascot(extra=''){
+  return `<span class="clawd-wrap ${['happy','celebrate'].includes(extra) ? 'is-encouraging' : ''}">
+    <svg class="mascot ${extra}" viewBox="0 0 120 120" role="img" aria-label="Clawd">
+      <ellipse class="clawd-shadow" cx="60" cy="105" rx="31" ry="5"/>
+      <g class="clawd-core">
+        <!-- Pixel silhouette based on the supplied Clawd reference -->
+        <path class="clawd-body clawd-arm-left" d="M9 48H27V29H39V19H81V29H93V48H111V68H93V96H80V75H70V96H58V75H48V96H36V75H27V68H9Z"/>
+        <path class="clawd-body clawd-arm-right" d="M81 29H93V48H111V68H93V96H80V75H70V96H58V75H48V96H36V75H27V68H9V48H27V29H39V19H81Z"/>
+        <g class="clawd-eyes">
+          <rect class="clawd-eye" x="37" y="36" width="11" height="11"/>
+          <rect class="clawd-eye" x="72" y="36" width="11" height="11"/>
+        </g>
+      </g>
+      <g class="clawd-spark">
+        <path d="M103 22l2.5 6 6 2.5-6 2.5-2.5 6-2.5-6-6-2.5 6-2.5z"/>
+        <circle cx="18" cy="27" r="3"/>
+        <circle cx="108" cy="48" r="2"/>
+      </g>
+    </svg>
+  </span>`;
+}
+
+/* ================= state ================= */
+const S = {
+  step:'welcome', started:false, guideOpen:false,
+  profile:{name:'', role:'', plan:'', goals:[]},
+  artifact:null, artifactReal:false, instructions:'', project:null,
+  sample:null, busy:false,
+  prefs:{large:false, slow:false, voice:false}, day:1, done:new Set(), paused:false, view:'chat', mission:null, firstDone:false
+};
+const PROGRESS = {first:1, working:1, artifact:1, tweak:2, tweaking:2, tweaked:2, know:3, remember:3, project:4, done:4};
+const isMobile = () => matchMedia('(max-width:900px)').matches;
+
+/* ================= static text ================= */
+function renderStatic(){
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.dataset.i18n));
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => el.setAttribute('aria-label', t(el.dataset.i18nAria)));
+  document.querySelectorAll('[data-mascot]').forEach(el => el.innerHTML = mascot());
+  document.querySelectorAll('[data-lang]').forEach(b => b.setAttribute('aria-pressed', b.dataset.lang === lang));
+  $('#input').placeholder = t('placeholder');
+  $('#greet').textContent = S.profile.name ? t('greetName',{name:S.profile.name}) : t('greet');
+  renderCrumb();
+}
+function renderCrumb(){
+  const c = $('#crumb');
+  c.innerHTML = S.project ? `<span>${esc(t('projects'))}</span><span class="pill">${esc(S.project)}</span>` : '';
+}
+
+/* ================= welcome ================= */
+function showWelcome(){
+  const w = $('#welcome');
+  w.innerHTML = `<div class="welcome" role="dialog" aria-modal="true" aria-labelledby="wTitle">
+    <div class="lang" role="group" aria-label="Idioma"><button data-lang="es" aria-pressed="${lang==='es'}">ES</button><button data-lang="en" aria-pressed="${lang==='en'}">EN</button></div>
+    <div class="w-mascot">${mascot('waving')}</div>
+    <h1 id="wTitle">${esc(t('wTitle'))}</h1>
+    <p>${esc(t('wBody'))}</p>
+    <p class="w-steps-title">${esc(t('wStepsTitle'))}</p>
+    <ol class="w-steps">${L().steps.filter((s,i) => !(S.prefs.slow && i === 3)).map(s => `<li>${esc(s)}</li>`).join('')}</ol>
+    <p class="w-time">${esc(t('wTime'))}</p>
+    <div class="w-prefs"><p class="w-steps-title">${esc(t('prefTitle'))}</p>${prefChips()}<p class="w-time">${esc(t('prefHint'))}</p></div>
+    <div class="actions">
+      <button class="btn btn-primary" data-w="start">${esc(t('start'))}</button>
+      <button class="btn btn-ghost" data-w="skip">${esc(t('notNow'))}</button>
+    </div>
+    <p class="w-recall">${esc(t('wRecall'))}</p>
+  </div>`;
+  w.hidden = false;
+  setTimeout(() => w.querySelector('[data-w="start"]')?.focus(), 50);
+}
+$('#welcome').addEventListener('click', e => {
+  const l = e.target.closest('[data-lang]');
+  if (l){ setLang(l.dataset.lang); showWelcome(); return; }
+  const a = e.target.closest('[data-w]'); if (!a) return;
+  $('#welcome').hidden = true;
+  if (a.dataset.w === 'start'){ S.started = true; S.step = 'first'; openGuide(); }
+  else { toast(t('skipped')); pulse($('#guideItem')); }
+});
+
+/* ================= coach ================= */
+function openGuide(){ S.guideOpen = true; document.body.classList.remove('coach-min'); renderCoach(); }
+function closeGuide(){ S.guideOpen = false; renderCoach(); }
+
+function renderCoach(){
+  const c = $('#coach');
+  document.body.classList.toggle('guide-on', S.guideOpen);
+  if (!S.guideOpen){ c.hidden = true; return; }
+  c.hidden = false;
+  c.classList.toggle('min', document.body.classList.contains('coach-min'));
+  const p = PROGRESS[S.step] || 0;
+  const thinking = (S.step === 'working' || S.step === 'tweaking' || S.step === 'missionWorking')
+    ? 'thinking'
+    : (S.step === 'done' || S.step === 'missionDone')
+      ? 'celebrate'
+      : (S.step === 'artifact' || S.step === 'tweaked')
+        ? 'happy'
+        : (S.step === 'know' || S.step === 'remember')
+          ? 'gentle'
+          : '';
+  c.innerHTML = `
+    <div class="coach-head">
+      <div class="coach-mascot">${mascot(thinking)}</div>
+      <div class="coach-meta"><span class="coach-name">Clawd</span><span class="coach-step">${S.step.startsWith('mission') && mission(S.mission) ? esc(t('pgDay',{d:mission(S.mission).day})) : p ? esc(t('stepOf',{n:Math.min(p,totalSteps()),total:totalSteps()})) : esc(t('guide'))}</span></div>
+      <button class="icon-btn only-mobile" data-a="min" aria-label="${esc(t('minimize'))}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="${document.body.classList.contains('coach-min') ? 'M6 15l6-6 6 6' : 'M6 9l6 6 6-6'}"/></svg></button>
+      <button class="icon-btn" data-a="skip" aria-label="${esc(t('skipGuide'))}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    ${S.step.startsWith('mission') ? '' : `<div class="progress" style="grid-template-columns:repeat(${totalSteps()},1fr)">${Array.from({length:totalSteps()},(_,k)=>k+1).map(i => `<i class="${i <= p ? 'on' : ''}"></i>`).join('')}</div>`}
+    <div class="coach-body">${body()}</div>`;
+}
+
+function body(){
+  const P = S.profile;
+  switch (S.step){
+    case 'resume': return `
+      <h2>${esc(t('resTitle'))}</h2>
+      <p>${esc(t('resBody',{n:PROGRESS[S.resumeTo] || 1}))}</p>
+      <div class="actions"><button class="btn btn-primary" data-a="resume">${esc(t('resume'))}</button><button class="btn btn-ghost" data-a="restart">${esc(t('restart'))}</button></div>`;
+    case 'know': return `
+      <h2>${esc(t('kTitle'))}</h2>
+      <p class="soft">${esc(t('kWhy'))}</p>
+      <div class="field"><label for="fName">${esc(t('kName'))}</label><input id="fName" autocomplete="given-name" placeholder="${esc(t('kNamePh'))}" value="${esc(P.name)}"></div>
+      <div class="field"><label for="fRole">${esc(t('kRole'))}</label><input id="fRole" placeholder="${esc(t('kRolePh'))}" value="${esc(P.role)}"></div>
+      <div class="field"><label for="fPlan">${esc(t('kPlan'))}</label><span class="soft" style="font-size:14px">${esc(t('kPlanHint'))}</span><input id="fPlan" placeholder="${esc(t('kPlanPh'))}" value="${esc(P.plan)}"></div>
+      <div class="field"><label id="gLbl">${esc(t('kGoal'))}</label><div class="chips" role="group" aria-labelledby="gLbl">${L().goals.map((g,i) => `<button class="chip" data-a="goal" data-i="${i}" aria-pressed="${P.goals.includes(i)}">${esc(g)}</button>`).join('')}</div></div>
+      <div class="privacy"><strong>${esc(t('pTitle'))}</strong><ul>${L().privacy.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
+      <div class="actions"><button class="btn btn-primary" data-a="know">${esc(t('cont'))}</button><button class="btn btn-ghost" data-a="knowSkip">${esc(t('noShare'))}</button></div>`;
+    case 'first': return `
+      <h2>${esc(P.name ? t('fTitleName',{name:P.name}) : t('fTitle'))}</h2>
+      <p class="soft">${esc(t('fBody'))}</p>
+      <div class="tasks">${P.plan ? `<button class="task" data-a="task" data-i="-1">${esc(t('planTask',{plan:P.plan}))}</button>` : ''}${L().tasks.map((x,i) => `<button class="task" data-a="task" data-i="${i}">${esc(x)}</button>`).join('')}</div>
+      <p class="soft">${esc(t('fOr'))}</p>
+      ${S.prefs.voice ? `<p class="soft">${esc(SR ? t('voiceTip') : t('voiceNo'))}</p>` : ''}`;
+    case 'working': return `
+      <h2>${esc(t('working'))}</h2>
+      <div class="loader"><i></i><i></i><i></i></div>
+      <p class="soft">${esc(t('workingBody'))}</p>`;
+    case 'artifact': return `
+      <h2>${esc(t('aTitle'))}</h2>
+      <p>${esc(t('aBody'))}</p>
+      <div class="privacy"><strong>${esc(t('aErrTitle'))}</strong><p class="soft" style="margin:0">${esc(t('aErr'))}</p></div>
+      <p class="soft">${esc(t('aTip'))}</p>
+      <div class="actions">
+        ${isMobile() ? `<button class="btn btn-ghost" data-a="openArt">${esc(t('openArt'))}</button>` : ''}
+        <button class="btn btn-primary" data-a="toTweak">${esc(t('next'))}</button>
+      </div>`;
+    case 'tweak': return `
+      <h2>${esc(t('tTitle'))}</h2>
+      <p class="soft">${esc(t('tBody'))}</p>
+      <div class="tasks">${L().tChips.map((x,i) => `<button class="task" data-a="rev" data-i="${i}">${esc(x)}</button>`).join('')}</div>
+      <p class="soft">${esc(t('tOr'))}</p>`;
+    case 'tweaking': return `
+      <h2>${esc(t('working'))}</h2>
+      <div class="loader"><i></i><i></i><i></i></div>
+      <p class="soft">${esc(t('tWorking'))}</p>`;
+    case 'tweaked': return `
+      <h2>${esc(t('tdTitle'))}</h2>
+      <p>${esc(t('tdBody'))}</p>
+      <div class="actions">
+        ${isMobile() ? `<button class="btn btn-ghost" data-a="openArt">${esc(t('openArt'))}</button>` : ''}
+        <button class="btn btn-primary" data-a="toKnow">${esc(t('next'))}</button>
+      </div>`;
+    case 'remember': return `
+      <h2>${esc(t('rTitle'))}</h2>
+      <p>${esc(t('rBody'))}</p>
+      <div class="field"><label for="fInstr">${esc(t('rLabel'))}</label><textarea id="fInstr">${esc(S.instructions || buildInstructions())}</textarea></div>
+      <p class="soft">${esc(t('rNote'))}</p>
+      <div class="actions"><button class="btn btn-primary" data-a="saveInstr">${esc(t('save'))}</button><button class="btn btn-ghost" data-a="toProject">${esc(t('skipStep'))}</button></div>`;
+    case 'project': return `
+      <h2>${esc(t('pjTitle'))}</h2>
+      <p>${esc(t('pjBody'))}</p>
+      <p class="soft">${esc(t('pjEx'))}</p>
+      <div class="field"><label for="fProj">${esc(t('pjLabel'))}</label><input id="fProj" value="${esc(S.project || t('pjDefault'))}"></div>
+      <div class="actions"><button class="btn btn-primary" data-a="createProj">${esc(t('pjCreate'))}</button></div>`;
+    case 'done': return `
+      <h2>${esc(t('dTitle'))}</h2>
+      <p>${esc(t('dBody'))}</p>
+      <ul class="done-list">${L().dList.filter((x,i) => !(S.prefs.slow && i === 3)).map(x => `<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg><span>${esc(x)}</span></li>`).join('')}</ul>
+      <p class="soft">${esc(t('dNext'))}</p>
+      <p>${esc(t('dProgram'))}</p>
+      <p class="soft">${esc(t('dRecall'))}</p>
+      <div class="actions"><button class="btn btn-primary" data-a="toProgram">${esc(t('seeProgram'))}</button><button class="btn btn-ghost" data-a="finish">${esc(t('finish'))}</button></div>`;
+    case 'mission': return missionBody();
+    case 'missionWorking': return `<h2>${esc(t('mWorking'))}</h2><div class="loader"><i></i><i></i><i></i></div>`;
+    case 'missionDone': return missionDoneBody();
+  }
+  return '';
+}
+
+function buildInstructions(){
+  const P = S.profile; let s = '';
+  if (P.name) s += t('instrName',{name:P.name});
+  if (P.role) s += t('instrRole',{role:P.role});
+  if (P.plan) s += t('instrPlan',{plan:P.plan});
+  if (P.goals.length) s += t('instrGoal',{goals:P.goals.map(i => L().goals[i].toLowerCase()).join(', ')});
+  return s + t('instrBase');
+}
+
+$('#coach').addEventListener('click', e => {
+  const b = e.target.closest('[data-a]'); if (!b) return;
+  const a = b.dataset.a;
+  if (a === 'min'){ document.body.classList.toggle('coach-min'); renderCoach(); return; }
+  if (a === 'skip'){ closeGuide(); toast(t('skipped')); pulse($('#guideItem')); return; }
+  if (a === 'goal'){ const on = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', on); return; }
+  if (a === 'know' || a === 'knowSkip'){
+    if (a === 'know'){
+      S.profile.name = $('#fName').value.trim();
+      S.profile.role = $('#fRole').value.trim();
+      S.profile.plan = $('#fPlan').value.trim();
+      S.profile.goals = [...document.querySelectorAll('#coach .chip[data-a="goal"][aria-pressed="true"]')].map(c => +c.dataset.i);
+    } else S.profile = {name:'', role:'', plan:'', goals:[]};
+    renderStatic(); go('remember'); return;
+  }
+  if (a === 'task'){ const i = +b.dataset.i; runTask(i < 0 ? t('planTask',{plan:S.profile.plan}) : L().tasks[i], i); return; }
+  if (a === 'openArt'){ openArtifact(); return; }
+  if (a === 'toTweak'){ go('tweak'); return; }
+  if (a === 'toKnow'){ go('know'); return; }
+  if (a === 'rev'){ const i = +b.dataset.i; runRevision(L().tChips[i], i); return; }
+  if (a === 'saveInstr'){ S.instructions = $('#fInstr').value.trim(); toast(t('saved')); go(S.prefs.slow ? 'done' : 'project'); return; }
+  if (a === 'toProject'){ go(S.prefs.slow ? 'done' : 'project'); return; }
+  if (a === 'toProgram'){ closeGuide(); showProgram(); return; }
+  if (a === 'mEx'){ runMission(mission(S.mission).prompt); return; }
+  if (a === 'mProj'){ createProject($('#mProj').value.trim() || t('pjDefault'), true); finishMission(); return; }
+  if (a === 'mInstr'){ S.instructions = $('#mInstr').value.trim(); toast(t('saved')); finishMission(); return; }
+  if (a === 'mClose'){ finishMission(); return; }
+  if (a === 'createProj'){ createProject($('#fProj').value.trim() || t('pjDefault')); return; }
+  if (a === 'finish'){ closeGuide(); $('#input').focus(); return; }
+  if (a === 'resume'){ go(S.resumeTo); return; }
+  if (a === 'restart'){ restart(); return; }
+});
+
+function go(step){
+  S.step = step;
+  document.body.classList.remove('coach-min');
+  renderCoach();
+  const cb = $('#coach .coach-body'); if (cb) cb.scrollTop = 0;
+}
+
+/* ================= chat & artifact ================= */
+function hideEmpty(){ $('#empty').hidden = true; }
+function addMsg(role, html){
+  hideEmpty();
+  const m = document.createElement('div');
+  m.className = 'msg ' + role;
+  m.innerHTML = role === 'claude' ? `<div class="av">${mascot('happy')}</div><div class="bubble">${html}</div>` : `<div class="bubble">${html}</div>`;
+  $('#msgs').appendChild(m);
+  $('#thread').scrollTop = $('#thread').scrollHeight;
+  return m.querySelector('.bubble');
+}
+function addRecent(title){
+  const b = document.createElement('button'); b.className = 'recent'; b.textContent = title;
+  $('#recentList').prepend(b);
+}
+
+function mdToHtml(md){
+  const lines = md.replace(/\r/g,'').split('\n');
+  let out = '', list = null, title = '';
+  const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  const close = () => { if (list){ out += `</${list}>`; list = null; } };
+  for (let i = 0; i < lines.length; i++){
+    const l = lines[i].trim();
+    if (/^```/.test(l)){
+      close();
+      const isDiag = /^```\s*diagram/i.test(l);
+      let j = i + 1; const buf = [];
+      while (j < lines.length && !/^```/.test(lines[j].trim())){ buf.push(lines[j]); j++; }
+      const closed = j < lines.length;
+      if (isDiag) out += closed ? diagramHtml(buf.join('\n')) : '<div class="diagram"><div class="skeleton" style="height:140px;max-width:460px"></div></div>';
+      i = closed ? j : lines.length;
+      continue;
+    }
+    if (!l){ close(); continue; }
+    if (/^#\s/.test(l) && !title){ title = l.replace(/^#\s+/,''); continue; }
+    if (/^#{2,}\s/.test(l)){ close(); out += `<h3>${inline(l.replace(/^#+\s+/,''))}</h3>`; continue; }
+    if (/^[-*]\s/.test(l)){ if (list !== 'ul'){ close(); out += '<ul>'; list = 'ul'; } out += `<li>${inline(l.slice(2))}</li>`; continue; }
+    if (/^\d+[.)]\s/.test(l)){ if (list !== 'ol'){ close(); out += '<ol>'; list = 'ol'; } out += `<li>${inline(l.replace(/^\d+[.)]\s+/,''))}</li>`; continue; }
+    close(); out += `<p>${inline(l)}</p>`;
+  }
+  close();
+  return {title, html: out};
+}
+
+/* ---------- diagrams (drawn as SVG from a small JSON spec) ---------- */
+function wrapText(text, max){
+  const words = String(text).split(/\s+/); const lines = []; let cur = '';
+  for (const w of words){
+    if ((cur + ' ' + w).trim().length > max && cur){ lines.push(cur); cur = w; }
+    else cur = (cur + ' ' + w).trim();
+  }
+  if (cur) lines.push(cur);
+  return lines.slice(0, 4);
+}
+function tspans(lines, x, y, lh){ return lines.map((ln,k) => `<tspan x="${x}" y="${y + k*lh}">${esc(ln)}</tspan>`).join(''); }
+function diagramHtml(json){
+  let d; try{ d = JSON.parse(json); }catch(e){ return ''; }
+  let svg = '';
+  if (d.type === 'flow' && Array.isArray(d.items)) svg = svgFlow(d.items.slice(0,6));
+  else if (d.type === 'compare' && d.left && d.right) svg = svgCompare(d);
+  if (!svg) return '';
+  return `<figure class="diagram">${d.title ? `<figcaption>${esc(d.title)}</figcaption>` : ''}${svg.replace('<svg ', `<svg role="img" aria-label="${esc(d.title || '')}" `)}</figure>`;
+}
+function svgFlow(items){
+  const W = 320, LH = 18, GAP = 22; let y = 2, body = '';
+  items.forEach((it, i) => {
+    const lines = wrapText(it, 30);
+    const h = Math.max(46, lines.length*LH + 24);
+    body += `<rect x="2" y="${y}" width="${W-4}" height="${h}" rx="12" style="fill:var(--bg);stroke:var(--line)"/>`;
+    body += `<circle cx="28" cy="${y + h/2}" r="13" style="fill:var(--accent-soft)"/>`;
+    body += `<text x="28" y="${y + h/2 + 5}" text-anchor="middle" style="fill:var(--accent);font-weight:700;font-size:13px">${i+1}</text>`;
+    const ty = y + h/2 - ((lines.length-1)*LH)/2 + 5;
+    body += `<text style="fill:var(--ink);font-size:14px">${tspans(lines, 52, ty, LH)}</text>`;
+    y += h;
+    if (i < items.length - 1){
+      body += `<path d="M${W/2} ${y+4} V${y+GAP-6}" style="stroke:var(--muted);stroke-width:1.6;fill:none"/>`;
+      body += `<path d="M${W/2-5} ${y+GAP-10} L${W/2} ${y+GAP-4} L${W/2+5} ${y+GAP-10}" style="stroke:var(--muted);stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round"/>`;
+      y += GAP;
+    }
+  });
+  return `<svg viewBox="0 0 ${W} ${y+2}" xmlns="http://www.w3.org/2000/svg">${body}</svg>`;
+}
+function svgCompare(d){
+  const W = 320, CW = 152, LH = 17;
+  const col = (c, x) => {
+    const head = wrapText(c.title || '', 16);
+    const hh = head.length*LH + 20;
+    let parts = `<rect x="${x}" y="2" width="${CW}" height="${hh}" rx="12" style="fill:var(--accent-soft)"/>`;
+    parts += `<text style="fill:var(--accent);font-weight:700;font-size:14px">${tspans(head, x+14, 2 + 10 + LH - 3, LH)}</text>`;
+    let y = hh + 16;
+    (c.items || []).slice(0,4).forEach(it => {
+      const ls = wrapText(it, 17);
+      parts += `<circle cx="${x+18}" cy="${y-4}" r="3" style="fill:var(--mascot)"/>`;
+      parts += `<text style="fill:var(--ink);font-size:13px">${tspans(ls, x+28, y, LH)}</text>`;
+      y += ls.length*LH + 10;
+    });
+    return {parts, h: y};
+  };
+  const a = col(d.left, 2), b = col(d.right, 2 + CW + 12);
+  const H = Math.max(a.h, b.h) + 4;
+  const bg = x => `<rect x="${x}" y="2" width="${CW}" height="${H-4}" rx="12" style="fill:var(--bg);stroke:var(--line)"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${bg(2)}${bg(2+CW+12)}${a.parts}${b.parts}</svg>`;
+}
+
+function renderArtifact(md, final){
+  const r = mdToHtml(md || '');
+  $('#artTitle').textContent = r.title || (S.pendingTitle || '');
+  $('#artBody').innerHTML = r.html || '<div class="skeleton" style="width:80%"></div><div class="skeleton" style="width:92%"></div><div class="skeleton" style="width:64%"></div>';
+  $('#artFoot').textContent = final ? (S.artifactReal ? t('genReal') : t('genDemo')) : '';
+  return r.title;
+}
+function openArtifact(){ const a = $('#artifact'); a.classList.add('open'); a.setAttribute('aria-hidden','false'); }
+function closeArtifact(){ const a = $('#artifact'); a.classList.remove('open'); a.setAttribute('aria-hidden','true'); }
+
+function buildPrompt(task){
+  const P = S.profile;
+  const goals = P.goals.map(i => I18N.en.goals[i]).join(', ');
+  return `You are Clawd, helping someone who is using AI for the very first time, inside an onboarding demo.
+Reply in ${t('langName')}.
+About the person (fields may be empty): name: ${P.name || '-'}; work: ${P.role || '-'}; something they want to get done now: ${P.plan || '-'}; wants to use Clawd for: ${goals || '-'}.
+Extra instructions from the person: ${S.instructions || '-'}
+Their request: "${task}"
+Write a short, genuinely useful document for them (max 170 words). Warm, plain language, no jargon. Personalise it with what you know about them only where it genuinely helps.
+Format as simple Markdown only: first line "# Title", then "## " for section headings, "- " for bullets, "1. " for numbered items, **bold** sparingly. No preamble, no closing remarks, no tables.
+When a simple diagram would genuinely make it clearer, add exactly ONE diagram block (never more, and skip it if it adds nothing), in exactly this form on its own lines:
+\`\`\`diagram
+{"type":"flow","title":"Short title","items":["Step 1","Step 2","Step 3"]}
+\`\`\`
+"flow" is for sequences, steps or time (3 to 6 items, each under 40 characters). For contrasts use instead:
+\`\`\`diagram
+{"type":"compare","title":"Short title","left":{"title":"A","items":["..."]},"right":{"title":"B","items":["..."]}}
+\`\`\`
+(2 to 4 items per side, each under 30 characters). Use valid JSON with double quotes. No other code blocks.`;
+}
+
+async function fakeStream(md, onText){
+  const words = md.split(/(\s+)/); let acc = '';
+  const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+  for (let i = 0; i < words.length; i++){
+    acc += words[i];
+    if (!reduce && i % 6 === 0){ onText(acc); await new Promise(r => setTimeout(r, 40)); }
+  }
+  onText(acc);
+  return acc;
+}
+
+async function runTask(task, idx, fallbackMd){
+  if (S.busy) return;
+  S.busy = true; setSendState();
+  const guided = S.guideOpen && (S.step === 'first');
+  if (guided) go('working');
+  addMsg('user', esc(task));
+  addRecent(task);
+  const bubble = addMsg('claude', '<span class="typing"><i></i><i></i><i></i></span>');
+  S.pendingTitle = task; S.artifactReal = false;
+  renderArtifact('', false);
+  if (!isMobile()) openArtifact();
+
+  let md = null;
+  if (S.sample){
+    try{
+      const res = await S.sample(buildPrompt(task), {cache:false, modelTier:'quick', onText:({text}) => renderArtifact(text, false)});
+      if (res && res.text && res.text.trim()){ md = res.text; S.artifactReal = true; }
+    }catch(err){
+      if (err && err.code === 'not_granted') S.sample = null;
+      md = null;
+    }
+  }
+  if (!md){ md = await fakeStream(fallbackMd || scripted(idx, task), txt => renderArtifact(txt, false)); S.artifactReal = false; }
+  const title = renderArtifact(md, true) || task;
+  S.artifact = {title, md}; S.version = 1; setVersion();
+  if (guided){ S.firstDone = true; S.done.add('first'); updateBadge(); }
+
+  const reply = S.profile.name ? t('replyName',{name:S.profile.name}) : t('reply');
+  bubble.innerHTML = `<p>${esc(reply)}</p>
+    <button class="art-card" data-open-art><span class="art-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>
+    <span><strong>${esc(title)}</strong><small>${esc(t('artifact'))}</small></span></button>`;
+  $('#thread').scrollTop = $('#thread').scrollHeight;
+
+  S.busy = false; setSendState();
+  if (guided){ go('artifact'); pulse(isMobile() ? bubble.querySelector('.art-card') : $('#artifact')); }
+}
+
+async function freeChat(text, fallbackText){
+  if (S.busy) return;
+  S.busy = true; setSendState();
+  addMsg('user', esc(text));
+  const bubble = addMsg('claude', '<span class="typing"><i></i><i></i><i></i></span>');
+  let out = null;
+  if (S.sample){
+    try{
+      const res = await S.sample(`You are Clawd talking with someone who is new to AI. Reply in ${t('langName')}, warmly and briefly (max 90 words), in plain sentences without Markdown.
+What you know about them: ${S.instructions || buildInstructions()}
+Their message: "${text}"`, {cache:false, modelTier:'quick', onText:({text}) => { bubble.innerHTML = `<p>${esc(text)}</p>`; }});
+      out = res && res.text;
+    }catch(e){ out = null; }
+  }
+  bubble.innerHTML = `<p>${esc(out || fallbackText || t('freeDemo'))}</p>`;
+  $('#thread').scrollTop = $('#thread').scrollHeight;
+  S.busy = false; setSendState();
+}
+
+function setVersion(){
+  const k = document.querySelector('.art-kind');
+  k.textContent = (S.version || 1) > 1 ? t('version',{n:S.version}) : t('artifact');
+}
+function reviseFallback(md, idx, instr){
+  const lines = md.split('\n');
+  if (idx === 0){
+    let out = [], rest = [], fence = false;
+    for (const l of lines){
+      const tl = l.trim();
+      if (/^```/.test(tl)){ fence = !fence; out.push(l); continue; }
+      if (fence || /^#\s/.test(tl)){ out.push(l); continue; }
+      if (tl) rest.push(l);
+    }
+    return out.concat(['', ...rest.slice(0, Math.max(2, Math.ceil(rest.length*0.5)))]).join('\n');
+  }
+  if (idx === 1) return md + '\n\n' + t('tipExtra');
+  if (idx === 2) return lines.map(l => /^#\s/.test(l.trim()) && !l.startsWith('##') ? '# ✨ ' + t('funTitle',{t:l.replace(/^#\s+/,'')}) : l).join('\n');
+  return md + '\n\n' + t('yourChange',{c:instr});
+}
+async function runRevision(instr, idx){
+  if (S.busy || !S.artifact) return;
+  S.busy = true; setSendState();
+  const guided = S.guideOpen && S.step === 'tweak';
+  if (guided) go('tweaking');
+  addMsg('user', esc(instr));
+  const bubble = addMsg('claude', '<span class="typing"><i></i><i></i><i></i></span>');
+  openArtifact();
+  let md = null, real = false;
+  if (S.sample){
+    try{
+      const prompt = `You are Clawd inside an onboarding demo for someone new to AI. Reply in ${t('langName')}.
+What you know about them: ${S.instructions || '-'}
+Here is the document you wrote for them:
+<<<
+${S.artifact.md}
+>>>
+They ask: "${instr}"
+Rewrite the whole document applying that change and nothing else. Keep the same format rules: first line "# Title", "## " for headings, "- " bullets, "1. " numbered items, **bold** sparingly, no tables. If there is a diagram block, keep or adapt it in exactly the same format (a \`\`\`diagram fence with the same JSON shape). Output only the document.`;
+      const res = await S.sample(prompt, {cache:false, modelTier:'quick', onText:({text}) => renderArtifact(text, false)});
+      if (res && res.text && res.text.trim()){ md = res.text; real = true; }
+    }catch(err){ if (err && err.code === 'not_granted') S.sample = null; }
+  }
+  if (!md) md = await fakeStream(reviseFallback(S.artifact.md, idx, instr), txt => renderArtifact(txt, false));
+  S.artifactReal = real;
+  const title = renderArtifact(md, true) || S.artifact.title;
+  S.artifact = {title, md}; S.version = (S.version || 1) + 1; setVersion();
+  bubble.innerHTML = `<p>${esc(t('replyRev'))}</p>
+    <button class="art-card" data-open-art><span class="art-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>
+    <span><strong>${esc(title)}</strong><small>${esc(t('version',{n:S.version}))}</small></span></button>`;
+  $('#thread').scrollTop = $('#thread').scrollHeight;
+  S.busy = false; setSendState();
+  if (guided){ go('tweaked'); pulse($('#artifact')); }
+}
+
+function createProject(name, fromMission){
+  S.project = name;
+  const d = document.createElement('div'); d.className = 'proj-child';
+  d.innerHTML = `<span class="dot"></span><span></span>`; d.lastChild.textContent = name;
+  $('#projList').appendChild(d);
+  renderCrumb(); toast(t('pjCreated'));
+  if (isMobile()){ document.body.classList.add('side-open'); setTimeout(() => document.body.classList.remove('side-open'), 1600); }
+  pulse(d);
+  if (!fromMission) go('done');
+}
+
+function restart(){
+  S.step = 'welcome'; S.started = false; S.profile = {name:'', role:'', plan:'', goals:[]};
+  S.artifact = null; S.instructions = ''; S.project = null; S.day = 1; S.done = new Set(); S.firstDone = false; S.paused = false; S.mission = null; showChat(); updateBadge();
+  $('#msgs').innerHTML = ''; $('#empty').hidden = false; $('#recentList').innerHTML = ''; $('#projList').innerHTML = '';
+  closeArtifact(); closeGuide(); renderStatic(); showWelcome();
+}
+
+/* ================= misc UI ================= */
+let toastTimer;
+function toast(msg){
+  const el = $('#toast'); el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
+}
+function pulse(el){ if (!el) return; el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse'); }
+function setLang(l){ lang = l; renderStatic(); setVersion(); renderSidePrefs(); if (S.view === 'program') renderProgram(); renderCoach(); if (S.artifact) $('#artFoot').textContent = S.artifactReal ? t('genReal') : t('genDemo'); }
+function setSendState(){ $('#send').disabled = S.busy || !$('#input').value.trim(); }
+
+document.querySelectorAll('.sidebar [data-lang]').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
+$('#guideItem').addEventListener('click', () => {
+  document.body.classList.remove('side-open');
+  if (!S.started || S.step === 'welcome'){ showWelcome(); return; }
+  if (S.guideOpen) return;
+  if (S.step === 'done' || S.step.startsWith('mission')){ restart(); return; }
+  S.resumeTo = S.step === 'working' ? 'first' : S.step === 'tweaking' ? 'tweak' : S.step;
+  S.step = 'resume'; openGuide();
+});
+$('#artItem').addEventListener('click', () => { document.body.classList.remove('side-open'); if (S.artifact) openArtifact(); });
+$('#newChat').addEventListener('click', () => { document.body.classList.remove('side-open'); $('#msgs').innerHTML = ''; $('#empty').hidden = false; closeArtifact(); });
+$('#menuBtn').addEventListener('click', () => document.body.classList.add('side-open'));
+$('#scrim').addEventListener('click', () => document.body.classList.remove('side-open'));
+$('#closeArt').addEventListener('click', closeArtifact);
+$('#copyBtn').addEventListener('click', async () => {
+  if (!S.artifact) return;
+  try{ await navigator.clipboard.writeText(S.artifact.md); toast(t('copied')); }catch(e){ toast(t('copied')); }
+});
+$('#msgs').addEventListener('click', e => { if (e.target.closest('[data-open-art]')) openArtifact(); });
+
+const input = $('#input');
+input.addEventListener('input', () => { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight,160) + 'px'; setSendState(); });
+function submit(){
+  const v = input.value.trim(); if (!v || S.busy) return;
+  input.value = ''; input.style.height = 'auto'; setSendState();
+  if (S.guideOpen && S.step === 'mission' && ['chat','doc','own'].includes((mission(S.mission)||{}).kind)) runMission(v);
+  else if (S.guideOpen && S.step === 'first') runTask(v, -1);
+  else if (S.guideOpen && S.step === 'tweak' && S.artifact) runRevision(v, -1);
+  else freeChat(v);
+}
+$('#send').addEventListener('click', submit);
+input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); submit(); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape'){ document.body.classList.remove('side-open'); closeArtifact(); } });
+matchMedia('(max-width:900px)').addEventListener('change', () => renderCoach());
+
+/* ================= boot ================= */
+renderStatic();
+renderSidePrefs();
+applyPrefs();
+updateBadge();
+$('#mic').addEventListener('click', toggleMic);
+$('#progItem').addEventListener('click', showProgram);
+$('#newChat').addEventListener('click', showChat);
+showWelcome();
+if (window.claude && typeof window.claude.use === 'function'){
+  window.claude.use('sample').then(s => { if (s) S.sample = s; }).catch(() => {});
+}
+</script>
+</body>
+</html>
