@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Claude Starter Logbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+body{margin:0}
+:root{
+  --ground:#EEF0ED; --surface:#FFFFFF; --ink:#1B1F1D; --muted:#5B645E; --line:#D3D8D2;
+  --accent:#2C58A0; --accent-ink:#FFFFFF; --accent-soft:#E2E9F5; --ocre:#B97A12; --ocre-soft:#F6ECD9;
+  --ok:#2E7D4F; --ok-soft:#E1F1E7; --bad:#B03A2E; --bad-soft:#F7E3E0; --code:#F5F6F3;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#141816; --surface:#1C211F; --ink:#E7EBE8; --muted:#9BA59F; --line:#2E3532;
+    --accent:#7FA6E6; --accent-ink:#0E1522; --accent-soft:#1F2C44; --ocre:#E0A544; --ocre-soft:#33280F;
+    --ok:#6CC592; --ok-soft:#18301F; --bad:#EE8577; --bad-soft:#3A1C18; --code:#232926;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#141816; --surface:#1C211F; --ink:#E7EBE8; --muted:#9BA59F; --line:#2E3532;
+  --accent:#7FA6E6; --accent-ink:#0E1522; --accent-soft:#1F2C44; --ocre:#E0A544; --ocre-soft:#33280F;
+  --ok:#6CC592; --ok-soft:#18301F; --bad:#EE8577; --bad-soft:#3A1C18; --code:#232926;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:15px/1.6 var(--body);padding-inline:16px;padding-block:0 48px}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto}
+header.top{padding-block:32px 20px;border-bottom:2px solid var(--ink);display:flex;flex-wrap:wrap;gap:16px 32px;align-items:end;justify-content:space-between}
+.hl{display:grid;gap:8px;max-width:640px}
+.eyebrow{font:500 12px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ocre)}
+h1{font:700 clamp(38px,6.5vw,64px)/.95 var(--display);text-transform:uppercase;margin:0;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:60ch}
+.rank{display:grid;gap:6px;min-width:250px;background:var(--surface);border:1px solid var(--line);padding:12px 14px}
+.rank .lbl{font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.rank .title{font:700 26px/1 var(--display);text-transform:uppercase}
+.rank .fr{font:12px var(--mono);color:var(--muted)}
+.bar{height:8px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .4s}
+.rank .pts{font:500 12px var(--mono);color:var(--muted);font-variant-numeric:tabular-nums;display:flex;justify-content:space-between}
+
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:28px;padding-top:24px;align-items:start}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;border-bottom:1px solid var(--line);margin-bottom:20px}
+.tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 12px 8px;font:700 18px/1 var(--display);text-transform:uppercase;letter-spacing:.02em;color:var(--muted);display:flex;gap:8px;align-items:center}
+.tabs button .c{font:500 11px var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tabs button.done .c{color:var(--ok)}
+.panel{display:grid;gap:16px}
+.panel h2{font:700 30px/1 var(--display);text-transform:uppercase;margin:0}
+.panel > p{margin:0;max-width:64ch;color:var(--muted)}
+
+/* quiz */
+.card{background:var(--surface);border:1px solid var(--line);padding:18px;display:grid;gap:14px}
+.qhead{display:flex;justify-content:space-between;gap:12px;font:500 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.scenario{font:600 20px/1.35 var(--body);margin:0;text-wrap:balance}
+.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.choice{background:var(--ground);border:1px solid var(--line);padding:12px;text-align:left;display:grid;gap:2px}
+.choice b{font:700 18px/1 var(--display);text-transform:uppercase}
+.choice span{font-size:12px;color:var(--muted)}
+.choice:hover:not(:disabled){border-color:var(--accent)}
+.choice.right{background:var(--ok-soft);border-color:var(--ok)}
+.choice.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.choice:disabled{cursor:default}
+.feedback{padding:12px 14px;border-left:3px solid var(--ok);background:var(--ok-soft)}
+.feedback.no{border-left-color:var(--bad);background:var(--bad-soft)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{background:var(--accent);color:var(--accent-ink);border:1px solid var(--accent);padding:8px 14px;font:600 14px var(--body)}
+.btn.ghost{background:transparent;color:var(--accent);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:default}
+.dots{display:flex;gap:4px;flex-wrap:wrap}
+.dots i{width:22px;height:6px;background:var(--line)}
+.dots i.r{background:var(--ok)} .dots i.w{background:var(--bad)} .dots i.cur{outline:1px solid var(--ink)}
+
+/* builder */
+.bgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.field{display:grid;gap:4px}
+.field label{display:flex;justify-content:space-between;font:700 16px/1 var(--display);text-transform:uppercase;color:var(--accent)}
+.field label small{font:400 11px var(--mono);color:var(--muted);text-transform:none}
+.field textarea{background:var(--surface);border:1px solid var(--line);padding:8px 10px;min-height:82px;resize:vertical;font-size:14px}
+.field .hint{font-size:12px;color:var(--muted);min-height:1.2em}
+.field .hint.ok{color:var(--ok)}
+.meter{display:grid;grid-template-columns:repeat(4,1fr);gap:3px}
+.meter i{height:8px;background:var(--line)} .meter i.on{background:var(--ok)}
+.preview{background:var(--code);border:1px solid var(--line);border-left:3px solid var(--accent);padding:12px 14px;font:13px/1.55 var(--mono);white-space:pre-wrap;word-break:break-word;min-height:60px;margin:0}
+.preview .ph{color:var(--muted)}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--surface);border:1px solid var(--line);padding:5px 10px;font:500 12px var(--mono);color:var(--ink)}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+
+/* fix */
+.weak{font:15px var(--mono);background:var(--bad-soft);border-left:3px solid var(--bad);padding:10px 12px;margin:0}
+.opts{display:grid;gap:8px}
+.opt{background:var(--ground);border:1px solid var(--line);padding:12px;text-align:left;font:13px/1.5 var(--mono)}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.right{background:var(--ok-soft);border-color:var(--ok)} .opt.wrong{background:var(--bad-soft);border-color:var(--bad)}
+.opt:disabled{cursor:default}
+
+/* flashcards */
+.flash{perspective:900px}
+.fc{position:relative;height:190px;transform-style:preserve-3d;transition:transform .45s;cursor:pointer;border:0;background:none;width:100%;padding:0}
+.fc.flip{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;display:grid;place-content:center;gap:6px;text-align:center;border:1px solid var(--line);background:var(--surface);padding:16px}
+.face.back{transform:rotateY(180deg);background:var(--accent-soft)}
+.face .w{font:700 clamp(28px,5vw,40px)/1 var(--display);text-transform:uppercase}
+.face .s{font:13px var(--body);color:var(--muted);max-width:44ch}
+.face .tag{font:500 11px var(--mono);letter-spacing:.1em;color:var(--ocre);text-transform:uppercase}
+.known{display:flex;flex-wrap:wrap;gap:4px}
+.known span{font:11px var(--mono);padding:2px 6px;border:1px solid var(--line);color:var(--muted)}
+.known span.k{border-color:var(--ok);color:var(--ok)}
+
+/* checklist */
+.check{display:grid;gap:6px;list-style:none;padding:0;margin:0}
+.check label{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:start;padding:10px 12px;background:var(--surface);border:1px solid var(--line);cursor:pointer}
+.check input{width:18px;height:18px;margin:2px 0 0;accent-color:var(--ok)}
+.check input:checked + span{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--ok)}
+.check .st{font:500 11px var(--mono);color:var(--ocre);text-transform:uppercase;letter-spacing:.06em;padding-top:3px}
+
+/* chat */
+aside.chat{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);background:var(--surface);border:1px solid var(--line);display:grid;grid-template-rows:auto 1fr auto;height:min(760px,calc(100vh - 24px))}
+.chead{padding:12px 14px;border-bottom:1px solid var(--line);display:grid;gap:6px}
+.chead .t{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.chead b{font:700 22px/1 var(--display);text-transform:uppercase}
+.status{font:500 11px var(--mono);color:var(--muted);display:flex;align-items:center;gap:6px}
+.status i{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.status.on i{background:var(--ok)}
+.toggle{display:flex;align-items:center;gap:6px;font:12px var(--mono);color:var(--muted);cursor:pointer}
+.toggle input{accent-color:var(--accent)}
+.msgs{overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:92%;padding:10px 12px;font-size:14px;line-height:1.55;overflow-wrap:anywhere}
+.msg p{margin:0 0 6px} .msg p:last-child{margin:0}
+.msg ul{margin:4px 0 6px;padding-left:18px}
+.msg code{font:12.5px var(--mono);background:var(--code);padding:1px 4px}
+.msg.me{align-self:flex-end;background:var(--accent);color:var(--accent-ink)}
+.msg.me code{background:transparent;color:inherit}
+.msg.ai{align-self:flex-start;background:var(--ground);border:1px solid var(--line)}
+.msg.ai .frsep{font:500 11px var(--mono);letter-spacing:.1em;color:var(--ocre);margin:8px 0 4px;display:block}
+.msg.sys{align-self:center;font:12px var(--mono);color:var(--muted);text-align:center;max-width:100%}
+.msg.think{color:var(--muted);font-style:italic}
+.starters{display:flex;flex-wrap:wrap;gap:6px}
+.cform{border-top:1px solid var(--line);padding:10px;display:grid;gap:8px}
+.cform textarea{width:100%;resize:none;min-height:56px;max-height:140px;background:var(--ground);border:1px solid var(--line);padding:8px 10px;font-size:14px}
+.cform .row{justify-content:space-between}
+.cform small{font:11px var(--mono);color:var(--muted)}
+
+footer{margin-top:40px;padding-top:14px;border-top:2px solid var(--ink);display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;color:var(--muted);font:13px var(--mono)}
+footer button{font:500 12px var(--mono);background:none;border:1px solid var(--line);color:var(--muted);padding:6px 10px}
+footer .confirm{display:flex;gap:8px;align-items:center}
+
+@media (max-width:980px){
+  .layout{grid-template-columns:1fr}
+  aside.chat{position:static;height:600px}
+}
+@media (max-width:560px){
+  .bgrid{grid-template-columns:1fr}
+  .rank{min-width:0;width:100%}
+  .tabs button{font-size:16px;padding:8px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<style>
+[hidden]{display:none!important}
+.chip{text-align:left}
+.side-top{display:grid;gap:10px;justify-items:end}
+.lang{display:inline-flex;border:1px solid var(--line);background:var(--surface)}
+.lang button{background:none;border:0;padding:6px 12px;font:600 13px var(--mono);letter-spacing:.06em;color:var(--muted)}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--ground)}
+@media (max-width:560px){.side-top{justify-items:stretch;width:100%}.lang{justify-self:start}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="hl">
+      <div class="eyebrow" data-i="eyebrow"></div>
+      <h1 data-i="h1"></h1>
+      <p class="lede" data-i="lede"></p>
+    </div>
+    <div class="side-top">
+      <div class="lang" role="group" aria-label="Language / Langue">
+        <button type="button" id="lang-fr" aria-pressed="false">FR</button>
+        <button type="button" id="lang-en" aria-pressed="true">EN</button>
+      </div>
+      <div class="rank" aria-live="polite">
+        <span class="lbl" data-i="rankLbl"></span>
+        <span class="title" id="rankTitle"></span>
+        <span class="fr" id="rankFr"></span>
+        <div class="bar"><i id="rankBar"></i></div>
+        <div class="pts"><span id="rankPts"></span><span id="rankNext"></span></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <div>
+      <div class="tabs" role="tablist" id="tabs">
+        <button role="tab" id="t-quiz" aria-controls="quiz" aria-selected="true"><span data-i="tabQuiz"></span> <span class="c" id="c-quiz"></span></button>
+        <button role="tab" id="t-builder" aria-controls="builder" aria-selected="false"><span data-i="tabBuilder"></span> <span class="c" id="c-builder"></span></button>
+        <button role="tab" id="t-fix" aria-controls="fix" aria-selected="false"><span data-i="tabFix"></span> <span class="c" id="c-fix"></span></button>
+        <button role="tab" id="t-words" aria-controls="words" aria-selected="false"><span data-i="tabWords"></span> <span class="c" id="c-words"></span></button>
+        <button role="tab" id="t-site" aria-controls="site" aria-selected="false"><span data-i="tabSite"></span> <span class="c" id="c-site"></span></button>
+      </div>
+
+      <section class="panel" id="quiz" role="tabpanel" aria-labelledby="t-quiz">
+        <h2 data-i="quizH"></h2>
+        <p data-i="quizP"></p>
+        <div class="card" id="quizCard"></div>
+      </section>
+
+      <section class="panel" id="builder" role="tabpanel" aria-labelledby="t-builder" hidden>
+        <h2 data-i="tabBuilder"></h2>
+        <p data-i="builderP"></p>
+        <div class="presets" id="presets"></div>
+        <div class="bgrid">
+          <div class="field"><label for="b-context"><span data-i="fContext"></span> <small data-i="fContextS"></small></label><textarea id="b-context"></textarea><div class="hint" id="h-context"></div></div>
+          <div class="field"><label for="b-task"><span data-i="fTask"></span> <small data-i="fTaskS"></small></label><textarea id="b-task"></textarea><div class="hint" id="h-task"></div></div>
+          <div class="field"><label for="b-constraints"><span data-i="fCons"></span> <small data-i="fConsS"></small></label><textarea id="b-constraints"></textarea><div class="hint" id="h-constraints"></div></div>
+          <div class="field"><label for="b-output"><span data-i="fOut"></span> <small data-i="fOutS"></small></label><textarea id="b-output"></textarea><div class="hint" id="h-output"></div></div>
+        </div>
+        <div class="meter" id="meter"><i></i><i></i><i></i><i></i></div>
+        <pre class="preview" id="preview"></pre>
+        <div class="row">
+          <button class="btn" id="reviewBtn" data-i="review"></button>
+          <button class="btn ghost" id="copyBtn" data-i="copy"></button>
+          <button class="btn ghost" id="clearBtn" data-i="clear"></button>
+        </div>
+      </section>
+
+      <section class="panel" id="fix" role="tabpanel" aria-labelledby="t-fix" hidden>
+        <h2 data-i="tabFix"></h2>
+        <p data-i="fixP"></p>
+        <div class="card" id="fixCard"></div>
+      </section>
+
+      <section class="panel" id="words" role="tabpanel" aria-labelledby="t-words" hidden>
+        <h2 data-i="wordsH"></h2>
+        <p data-i="wordsP"></p>
+        <div class="flash"><button class="fc" id="fc"><div class="face front"><span class="tag" id="fcTag"></span><span class="w" id="fcA"></span><span class="s" id="fcExA"></span></div><div class="face back"><span class="tag" id="fcTagB"></span><span class="w" id="fcB"></span><span class="s" id="fcExB"></span></div></button></div>
+        <div class="row">
+          <button class="btn ghost" id="fcAgain" data-i="again"></button>
+          <button class="btn" id="fcKnow" data-i="know"></button>
+          <button class="btn ghost" id="fcAsk" data-i="useIt"></button>
+          <span class="status" id="fcCount"></span>
+        </div>
+        <div class="known" id="known"></div>
+      </section>
+
+      <section class="panel" id="site" role="tabpanel" aria-labelledby="t-site" hidden>
+        <h2 data-i="siteH"></h2>
+        <p data-i="siteP"></p>
+        <ul class="check" id="checklist"></ul>
+      </section>
+
+      <footer>
+        <span data-i="foot"></span>
+        <span class="confirm" id="resetWrap"></span>
+      </footer>
+    </div>
+
+    <aside class="chat" id="chat">
+      <div class="chead">
+        <div class="t"><b data-i="coach"></b><span class="status" id="cstatus"><i></i><span id="cstatusT"></span></span></div>
+        <label class="toggle"><input type="checkbox" id="trToggle" checked> <span data-i="trToggle"></span></label>
+      </div>
+      <div class="msgs" id="msgs" aria-live="polite">
+        <div class="msg ai" id="hello"><p data-i="hello"></p></div>
+        <div class="starters" id="starters"></div>
+      </div>
+      <form class="cform" id="cform">
+        <label for="cinput" class="toggle" style="cursor:default" data-i="yourMsg"></label>
+        <textarea id="cinput"></textarea>
+        <div class="row"><small data-i="enterHint"></small><span class="row"><button type="button" class="btn ghost" id="stopBtn" hidden data-i="stop"></button><button type="submit" class="btn" id="sendBtn" data-i="send"></button></span></div>
+      </form>
+    </aside>
+  </div>
+</div>
+
+<script>
+(function(){
+/* ---------- UI strings ---------- */
+const UI={
+en:{eyebrow:"Site logbook · Claude",h1:"Putting Claude to work",lede:"Train on four workshops, tick off the job site, and ask the coach anything along the way. Every right answer moves you up a rank.",rankLbl:"Your rank",
+tabQuiz:"Which tool?",tabBuilder:"Prompt builder",tabFix:"Fix the prompt",tabWords:"Vocabulary",tabSite:"Job site",
+quizH:"Which tool for the job?",quizP:"Eight real situations. Pick the tool you'd use: Chat, Projects, Cowork or Claude Code.",
+builderP:"Brief Claude like a site foreman: context, task, constraints, output. Load an example or write your own, then have the coach review it.",
+fContext:"Context",fContextS:"who, what, which job",fTask:"Task",fTaskS:"one clear verb",fCons:"Constraints",fConsS:"tone, length, rules",fOut:"Output",fOutS:"email, table, file…",
+review:"Review it with the coach",copy:"Copy prompt",copied:"Copied",selected:"Selected, press Cmd+C",clear:"Clear",previewPh:"Your prompt appears here as you type.",
+fixP:"A weak request comes in. Pick the rewrite that will get the job done on the first try.",
+wordsH:"AI vocabulary",wordsP:"The key words for working with AI, in English and French. Tap the card to see the translation.",
+again:"Again",know:"I knew it",useIt:"Use it in a sentence",
+siteH:"Job site checklist",siteP:"Real things to do this month, from foundations to finishing.",
+foot:"Claude starter logbook · 2026",reset:"Reset my progress",resetQ:"Erase all progress?",resetY:"Yes, reset",resetN:"Cancel",
+coach:"Site coach",trToggle:"Add French translation",hello:"Hi! I'm your coach for this logbook. Ask me anything about using Claude, or send me a prompt to review.",
+yourMsg:"Your message",enterHint:"Enter to send · Shift+Enter for a new line",stop:"Stop",send:"Send",ph:"Ask in English or French…",
+connecting:"Connecting…",ready:"Ready",offline:"Available inside Claude",thinking:"Thinking…",stopped:"Stopped.",interrupted:"Interrupted.",cut:"Cut short. Ask for a shorter answer.",notInClaude:"The coach only works when this page is opened in Claude.",
+situation:"Situation",of:"of",result:"Result",right:"right.",allRight:"Spot on. You pick the right tool every time.",review2:"Review the ones you missed, or ask the coach to explain the difference between the tools.",
+tryAgain:"Try again",askTools:"Ask the coach about the tools",rightB:"Right. ",notQuite:"Not quite: it's ",nextSit:"Next situation",seeResult:"See my result",askWhy:"Ask the coach why",
+round:"Round",weak:"Weak request",pickBest:"Pick the best rewrite",notThis:"Not this one. ",nextRound:"Next round",loadBuilder:"Load it in the builder",
+at:"at",top:"Top rank",pts:"pts",frontTag:"English",backTag:"Français",
+hintGood:{context:"Good: concrete details.",task:"Good: starts with a clear verb.",constraints:"Good: clear rules.",output:"Good: format named."},
+hintBad:{context:"Add a name, a number or a place.",task:"Start with one clear verb.",constraints:"Add tone, length, or what to avoid.",output:"Name the format you want back."},
+starters:["What can Claude do for me day to day?","What's the difference between Chat and a Project?","How do scheduled tasks work in Cowork?","How do I know if an answer is reliable?"],
+err:{not_granted:"Chat is turned off for this page. You can allow it next time you open the logbook.",sampling_disabled:"Chat isn't available for this account.",rate_limited:"Too many messages at once, or your usage limit is reached. Try again in a moment.",session_expired:"Your session expired. Sign in to Claude again, then retry.",refused:"The coach can't answer that one. Try rephrasing.",prompt_too_large:"That message is too long. Try a shorter one.",empty_completion:"No answer came back. Try rephrasing.",upstream_error:"The connection dropped. Send your message again."}},
+fr:{eyebrow:"Carnet de chantier · Claude",h1:"Mettre Claude au travail",lede:"Entraîne-toi sur quatre ateliers, coche les étapes du chantier et pose tes questions au coach en chemin. Chaque bonne réponse te fait monter en grade.",rankLbl:"Ton grade",
+tabQuiz:"Quel outil ?",tabBuilder:"Atelier prompt",tabFix:"Corrige le prompt",tabWords:"Vocabulaire",tabSite:"Chantier",
+quizH:"Quel outil pour quel travail ?",quizP:"Huit situations réelles. Choisis l'outil que tu utiliserais : Chat, Projets, Cowork ou Claude Code.",
+builderP:"Brief Claude comme un chef de chantier : contexte, tâche, contraintes, rendu. Charge un exemple ou écris le tien, puis fais-le relire par le coach.",
+fContext:"Contexte",fContextS:"qui, quoi, quel chantier",fTask:"Tâche",fTaskS:"un verbe clair",fCons:"Contraintes",fConsS:"ton, longueur, règles",fOut:"Rendu",fOutS:"mail, tableau, fichier…",
+review:"Faire relire par le coach",copy:"Copier le prompt",copied:"Copié",selected:"Sélectionné, fais Cmd+C",clear:"Effacer",previewPh:"Ton prompt s'affiche ici pendant que tu écris.",
+fixP:"Une demande faible arrive. Choisis la réécriture qui fera le travail du premier coup.",
+wordsH:"Vocabulaire de l'IA",wordsP:"Les mots clés pour travailler avec l'IA, en français et en anglais. Touche la carte pour voir l'anglais.",
+again:"Encore",know:"Je le savais",useIt:"Exemples de phrases",
+siteH:"Check-list du chantier",siteP:"Des actions concrètes à faire ce mois-ci, des fondations aux finitions.",
+foot:"Carnet de démarrage Claude · 2026",reset:"Remettre à zéro",resetQ:"Effacer toute la progression ?",resetY:"Oui, effacer",resetN:"Annuler",
+coach:"Coach de chantier",trToggle:"Ajouter la traduction anglaise",hello:"Salut ! Je suis ton coach pour ce carnet. Pose-moi tes questions sur Claude, ou envoie-moi un prompt à relire.",
+yourMsg:"Ton message",enterHint:"Entrée pour envoyer · Maj+Entrée pour aller à la ligne",stop:"Stop",send:"Envoyer",ph:"Écris en français ou en anglais…",
+connecting:"Connexion…",ready:"Prêt",offline:"Disponible dans Claude",thinking:"Réflexion…",stopped:"Arrêté.",interrupted:"Interrompu.",cut:"Réponse coupée. Demande plus court.",notInClaude:"Le coach ne fonctionne que si la page est ouverte dans Claude.",
+situation:"Situation",of:"sur",result:"Résultat",right:"bonnes réponses.",allRight:"Parfait. Tu choisis le bon outil à chaque fois.",review2:"Revois celles que tu as ratées, ou demande au coach d'expliquer la différence entre les outils.",
+tryAgain:"Recommencer",askTools:"Demander au coach",rightB:"Bien vu. ",notQuite:"Pas tout à fait : c'est ",nextSit:"Situation suivante",seeResult:"Voir mon résultat",askWhy:"Demander pourquoi au coach",
+round:"Manche",weak:"Demande faible",pickBest:"Choisis la meilleure réécriture",notThis:"Pas celle-ci. ",nextRound:"Manche suivante",loadBuilder:"L'ouvrir dans l'atelier",
+at:"à",top:"Grade maximum",pts:"pts",frontTag:"Français",backTag:"English",
+hintGood:{context:"Bien : des détails concrets.",task:"Bien : un verbe clair.",constraints:"Bien : des règles claires.",output:"Bien : format précisé."},
+hintBad:{context:"Ajoute un nom, un chiffre ou un lieu.",task:"Commence par un verbe clair.",constraints:"Ajoute le ton, la longueur ou ce qu'il faut éviter.",output:"Précise le format attendu."},
+starters:["Que peut faire Claude pour moi au quotidien ?","Quelle différence entre le Chat et un Projet ?","Comment marchent les tâches planifiées dans Cowork ?","Comment savoir si une réponse est fiable ?"],
+err:{not_granted:"Le chat est désactivé pour cette page. Tu pourras l'autoriser à la prochaine ouverture.",sampling_disabled:"Le chat n'est pas disponible pour ce compte.",rate_limited:"Trop de messages d'un coup, ou limite d'utilisation atteinte. Réessaie dans un moment.",session_expired:"Ta session a expiré. Reconnecte-toi à Claude puis réessaie.",refused:"Le coach ne peut pas répondre à ça. Reformule.",prompt_too_large:"Message trop long. Raccourcis-le.",empty_completion:"Aucune réponse reçue. Reformule.",upstream_error:"La connexion a coupé. Renvoie ton message."}}
+};
+
+/* ---------- data (en / fr) ---------- */
+const TOOLS={chat:{n:"Chat",en:"think, decide, draft",fr:"réfléchir, trancher, rédiger"},projects:{n:{en:"Projects",fr:"Projets"},en:"permanent context",fr:"contexte permanent"},cowork:{n:"Cowork",en:"acts on files & tasks",fr:"agit sur fichiers et tâches"},code:{n:"Claude Code",en:"code in a repo",fr:"code dans un repo"}};
+const QUIZ=[
+ {a:"chat",en:["You're hesitating between two job offers and want to weigh the pros and cons.","A one-off decision: a chat conversation is the fastest place to think it through."],fr:["Tu hésites entre deux offres d'emploi et tu veux peser le pour et le contre.","Une décision ponctuelle : une conversation dans le chat est le plus rapide pour y réfléchir."]},
+ {a:"projects",en:["You write proposals every week and want Claude to always use your prices, terms and template.","A Project keeps your prices and terms loaded, so every new proposal starts with the right context."],fr:["Tu rédiges des propositions chaque semaine et tu veux que Claude utilise toujours tes tarifs, tes conditions et ton modèle.","Un Projet garde tes tarifs et conditions chargés : chaque nouvelle proposition part avec le bon contexte."]},
+ {a:"cowork",en:["300 holiday photos sit in a folder on your computer. You want them renamed by date and place.","Cowork works directly on the files in a folder you connect."],fr:["300 photos de vacances dans un dossier de ton ordinateur. Tu veux les renommer par date et par lieu.","Cowork travaille directement sur les fichiers d'un dossier que tu connectes."]},
+ {a:"code",en:["The contact form on your website's code throws an error when someone submits it.","A bug in a code project: Claude Code reads the repo, investigates, then proposes a fix."],fr:["Le formulaire de contact de ton site web plante quand quelqu'un l'envoie.","Un bug dans un projet de code : Claude Code lit le repo, investigue, puis propose une correction."]},
+ {a:"cowork",en:["Every Monday morning you want a summary of news in your field, with sources.","A scheduled task in Cowork reruns on its own every week."],fr:["Chaque lundi matin, tu veux un résumé de l'actualité de ton secteur, avec les sources.","Une tâche planifiée dans Cowork se relance toute seule chaque semaine."]},
+ {a:"projects",en:["Every new conversation about your side project should know its goals and past decisions.","Project instructions and files carry that context into every conversation."],fr:["Chaque nouvelle conversation sur ton projet perso doit connaître ses objectifs et les décisions passées.","Les instructions et fichiers du Projet transmettent ce contexte à chaque conversation."]},
+ {a:"chat",en:["Your lease has a clause you don't understand and you want it explained in plain words.","A quick explanation: chat. Ask for sources if you'll rely on it."],fr:["Ton bail contient une clause que tu ne comprends pas et tu veux qu'on te l'explique simplement.","Une explication rapide : le chat. Demande les sources si tu t'appuies dessus."]},
+ {a:"cowork",en:["You want a shareable page tracking your team's tasks, which you'll reopen every week.","Cowork can publish a page you keep and share, like this logbook."],fr:["Tu veux une page partageable qui suit les tâches de ton équipe, à rouvrir chaque semaine.","Cowork peut publier une page que tu gardes et partages, comme ce carnet."]}
+];
+const FIX=[
+ {a:1,en:{weak:"Write an email.",opts:["Write a good, professional email please.","I'm a freelance designer. Write an email to a new client confirming our kick-off call on Tuesday at 10 am, listing the 3 documents I need from them. Friendly, 8 lines max, with a subject line.","Email, client, quick."],why:"It gives who you are, the purpose, the details, the tone and the format. Nothing left to guess."},
+  fr:{weak:"Écris un mail.",opts:["Écris un bon mail professionnel s'il te plaît.","Je suis graphiste indépendant. Écris un mail à un nouveau client pour confirmer notre appel de lancement mardi à 10 h et lister les 3 documents dont j'ai besoin. Ton cordial, 8 lignes max, avec un objet.","Mail, client, vite."],why:"Qui tu es, le but, les détails, le ton et le format sont là. Rien à deviner."}},
+ {a:2,en:{weak:"Summarize this.",opts:["Summarize this, it's long.","Make it shorter.","Here's a 20-page report [attached]. Summarize it for my manager, who has 2 minutes: 5 bullet points, key figures first, then one line on what we should decide."],why:"It names the reader, the time they have, the format and what matters most."}},
+ {a:1,en:{weak:"Tell me about retirement savings.",opts:["Tell me everything about retirement savings.","I'm 35, employed in France, with no retirement savings yet. What are the main options, with pros and cons of each? Cite official sources, 15 lines max.","Explain retirement simply."],why:"It sets your situation, what you need, a source requirement and a length."},
+  fr:{weak:"Parle-moi de l'épargne retraite.",opts:["Dis-moi tout sur l'épargne retraite.","J'ai 35 ans, je suis salarié en France et je n'ai pas encore d'épargne retraite. Quelles sont les principales options, avec leurs avantages et inconvénients ? Cite les sources officielles, 15 lignes max.","Explique la retraite simplement."],why:"Ta situation, ce qu'il te faut, l'exigence de sources et une longueur."}},
+ {a:0,en:{weak:"Answer this customer.",opts:["Here's the customer's email [pasted]. They're asking for a refund after 45 days. Using our refund policy [pasted], draft a polite reply that explains the 30-day rule and offers a store credit. 8 lines.","Answer the customer nicely.","Answer the customer, they're wrong."],why:"Context, source document, tone and length are all there."},
+  fr:{weak:"Réponds à ce client.",opts:["Voici le mail du client [collé]. Il demande un remboursement après 45 jours. En t'appuyant sur notre politique de remboursement [collée], rédige une réponse polie qui explique la règle des 30 jours et propose un avoir. 8 lignes.","Réponds gentiment au client.","Réponds au client, il a tort."],why:"Contexte, document de référence, ton et longueur : tout y est."}}
+];
+FIX[1].fr={weak:"Résume ça.",opts:["Résume ça, c'est long.","Fais plus court.","Voici un rapport de 20 pages [joint]. Résume-le pour mon responsable, qui a 2 minutes : 5 puces, chiffres clés d'abord, puis une ligne sur ce qu'on doit décider."],why:"Le lecteur, le temps dont il dispose, le format et l'essentiel sont précisés."};
+const WORDS=[
+ ["Prompt","Prompt / consigne","Write a clear prompt with context.","Écris un prompt clair avec du contexte.","Basics","Bases"],
+ ["Context","Contexte","The more context you give, the better the answer.","Plus tu donnes de contexte, meilleure est la réponse.","Basics","Bases"],
+ ["Draft","Brouillon","Ask Claude for a first draft.","Demande un premier brouillon à Claude.","Basics","Bases"],
+ ["Output","Rendu / résultat","Say which output you want: a table, an email…","Précise le rendu voulu : un tableau, un mail…","Basics","Bases"],
+ ["Hallucination","Hallucination","Check the sources to catch a hallucination.","Vérifie les sources pour repérer une hallucination.","Caution","Prudence"],
+ ["Source","Source","Ask Claude to cite its sources.","Demande à Claude de citer ses sources.","Caution","Prudence"],
+ ["Fact-check","Vérifier les faits","Always fact-check figures and dates.","Vérifie toujours les chiffres et les dates.","Caution","Prudence"],
+ ["Model","Modèle","Different models trade speed for depth.","Les modèles arbitrent entre vitesse et profondeur.","Tech","Technique"],
+ ["Token","Token (unité de texte)","Long documents use more tokens.","Les longs documents consomment plus de tokens.","Tech","Technique"],
+ ["Context window","Fenêtre de contexte","A very long chat can exceed the context window.","Une très longue conversation peut dépasser la fenêtre de contexte.","Tech","Technique"],
+ ["Upload","Téléverser / joindre","Upload the PDF and ask your question.","Joins le PDF et pose ta question.","Tech","Technique"],
+ ["Connector","Connecteur","A connector links Claude to your other apps.","Un connecteur relie Claude à tes autres applis.","Tools","Outils"],
+ ["Scheduled task","Tâche planifiée","A scheduled task runs every Monday at 7 am.","Une tâche planifiée tourne chaque lundi à 7 h.","Tools","Outils"],
+ ["Workflow","Flux de travail","Automate a repetitive workflow.","Automatise un flux de travail répétitif.","Tools","Outils"],
+ ["Agent","Agent","An agent carries out several steps on its own.","Un agent réalise plusieurs étapes tout seul.","Tools","Outils"],
+ ["Go-ahead","Feu vert","Ask Claude to wait for your go-ahead.","Demande à Claude d'attendre ton feu vert.","Tools","Outils"]
+];
+const CHECK=[
+ ["Foundations","Try the same question in Chat and in a Project, and compare.","Fondations","Poser la même question dans le Chat et dans un Projet, et comparer."],
+ ["Foundations","Create a first Project with instructions and one reference document.","Fondations","Créer un premier Projet avec des instructions et un document de référence."],
+ ["Setting out","Use a four-part brief on a real task from this week.","Implantation","Tester un brief en 4 blocs sur une vraie tâche de la semaine."],
+ ["Setting out","Compare it with a one-line request.","Implantation","Comparer avec une demande en une ligne."],
+ ["Walls up","Tell Claude one preference to remember, then check it was kept.","Élévation","Demander à Claude de retenir une préférence, puis vérifier qu'elle est gardée."],
+ ["Walls up","Upload a PDF or a photo and ask a question about it.","Élévation","Joindre un PDF ou une photo et poser une question dessus."],
+ ["Structural work","Connect a first folder from your computer to Cowork.","Gros œuvre","Connecter un premier dossier de ton ordinateur à Cowork."],
+ ["Structural work","Have Claude process a real batch of files (invoices, photos, notes).","Gros œuvre","Faire traiter un vrai lot de fichiers (factures, photos, notes)."],
+ ["Structural work","Create your first scheduled task.","Gros œuvre","Créer ta première tâche planifiée."],
+ ["Roof framing","Ask Claude for a plan and approve it before it acts.","Charpente","Demander un plan à Claude et le valider avant qu'il agisse."],
+ ["Finishing","Ask for sources on an important question and check one of them.","Finitions","Demander les sources sur une question importante et en vérifier une."],
+ ["Finishing","Ask Claude to reread an important document and look for mistakes.","Finitions","Faire relire un document important à Claude pour chercher les erreurs."]
+];
+const PRESETS=[
+ {en:{name:"Payment reminder",context:"I'm a freelance photographer. A client hasn't paid an invoice of €850 for a wedding shoot, now 30 days overdue.",task:"Write a reminder email.",constraints:"Firm but friendly, 8 lines max, no threats, offer to split the payment in two.",output:"The email ready to copy, with a subject line."},
+  fr:{name:"Relance de paiement",context:"Je suis photographe indépendant. Un client n'a pas payé une facture de 850 € pour un reportage de mariage, en retard de 30 jours.",task:"Rédige un mail de relance.",constraints:"Ferme mais cordial, 8 lignes max, pas de menace, proposer de payer en deux fois.",output:"Le mail prêt à copier, avec un objet."}},
+ {en:{name:"Sort receipts",context:"My folder \"Receipts 2026\" contains about 60 PDF and photo receipts.",task:"Read every receipt and extract the key figures.",constraints:"Don't modify the originals. Flag any receipt you can't read.",output:"A table: shop, date, amount, category."},
+  fr:{name:"Trier des tickets",context:"Mon dossier « Tickets 2026 » contient une soixantaine de tickets en PDF et en photo.",task:"Lis tous les tickets et extrais les chiffres clés.",constraints:"Ne modifie pas les originaux. Signale les tickets illisibles.",output:"Un tableau : magasin, date, montant, catégorie."}},
+ {en:{name:"Plan a trip",context:"Two adults, one 6-year-old, 5 days in Lisbon in April, mid-range budget.",task:"Build a day-by-day itinerary.",constraints:"No more than 2 activities a day, one child-friendly stop daily, walking distances under 30 minutes.",output:"A table by day, then a short packing list."},
+  fr:{name:"Préparer un voyage",context:"Deux adultes et un enfant de 6 ans, 5 jours à Lisbonne en avril, budget moyen.",task:"Construis un itinéraire jour par jour.",constraints:"2 activités max par jour, une étape adaptée à l'enfant chaque jour, trajets à pied de moins de 30 minutes.",output:"Un tableau par jour, puis une courte liste de bagages."}},
+ {en:{name:"English pitch",context:"I'm presenting my small business at a networking event.",task:"Write a 30-second spoken introduction in English.",constraints:"Simple words, no jargon, 3 to 4 sentences, confident but not salesy.",output:"The pitch, then a French translation line by line."},
+  fr:{name:"Pitch en anglais",context:"Je présente ma petite entreprise lors d'un événement de networking.",task:"Écris une présentation orale de 30 secondes en anglais.",constraints:"Mots simples, pas de jargon, 3 à 4 phrases, confiant sans être commercial.",output:"Le pitch en anglais, puis la traduction française ligne par ligne."}}
+];
+const RANKS=[[0,"Apprentice","Apprenti"],[20,"Journeyman","Compagnon"],[40,"Master craftsman","Maître artisan"]];
+
+/* ---------- state ---------- */
+const KEY="claude-starter-logbook-v1";
+const blank=()=>({lang:"en",tab:"quiz",quiz:{},qi:0,fix:{},fi:0,known:{},wi:0,check:{},reviewed:false,chatted:false,draft:{}});
+let S=blank();
+try{const raw=localStorage.getItem(KEY);if(raw)S=Object.assign(blank(),JSON.parse(raw))}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const L=()=>S.lang==="fr"?"fr":"en";
+const T=k=>UI[L()][k];
+const toolName=k=>typeof TOOLS[k].n==="string"?TOOLS[k].n:TOOLS[k].n[L()];
+
+/* ---------- language ---------- */
+function applyLang(){
+  const l=L();document.documentElement.lang=l;
+  document.querySelectorAll("[data-i]").forEach(el=>{el.textContent=T(el.dataset.i)});
+  $("cinput").placeholder=T("ph");
+  $("lang-fr").setAttribute("aria-pressed",l==="fr");$("lang-en").setAttribute("aria-pressed",l==="en");
+  $("starters").innerHTML="";T("starters").forEach(s=>{const b=document.createElement("button");b.className="chip";b.type="button";b.textContent=s;b.onclick=()=>askCoach(s);$("starters").appendChild(b)});
+  $("presets").innerHTML="";PRESETS.forEach(p=>{const b=document.createElement("button");b.className="chip";b.type="button";b.textContent=p[l].name;b.onclick=()=>{BF.forEach(k=>$("b-"+k).value=p[l][k]);renderBuilder()};$("presets").appendChild(b)});
+  CHECK.forEach((c,i)=>{$("ckt-"+i).textContent=l==="fr"?c[3]:c[1];$("cks-"+i).textContent=l==="fr"?c[2]:c[0]});
+  setStatus(sampleState);
+  renderQuiz();renderFix();renderWord();renderBuilder();renderRank();restoreReset();
+}
+function setLang(l){if(S.lang===l)return;
+  const wasPreset=PRESETS.find(p=>BF.every(k=>$("b-"+k).value===p[L()][k]));
+  S.lang=l;save();
+  if(wasPreset)BF.forEach(k=>$("b-"+k).value=wasPreset[l][k]);
+  applyLang()}
+$("lang-fr").onclick=()=>setLang("fr");$("lang-en").onclick=()=>setLang("en");
+
+/* ---------- rank ---------- */
+function points(){
+  const q=Object.entries(S.quiz).filter(([i,v])=>v===QUIZ[i].a).length*2;
+  const f=Object.entries(S.fix).filter(([i,v])=>v===FIX[i].a).length*2;
+  return q+f+Object.keys(S.known).length+Object.values(S.check).filter(Boolean).length*2+(S.reviewed?3:0)+(S.chatted?3:0);
+}
+const MAX=QUIZ.length*2+FIX.length*2+WORDS.length+CHECK.length*2+6;
+function renderRank(){
+  const p=points(),fr=L()==="fr";let r=RANKS[0],nx=RANKS[1];
+  RANKS.forEach((x,i)=>{if(p>=x[0]){r=x;nx=RANKS[i+1]||null}});
+  $("rankTitle").textContent=fr?r[2]:r[1];$("rankFr").textContent=fr?"EN : "+r[1].toLowerCase():"FR : "+r[2].toLowerCase();
+  $("rankPts").textContent=p+" / "+MAX+" "+T("pts");
+  $("rankNext").textContent=nx?(fr?nx[2]:nx[1])+" "+T("at")+" "+nx[0]:T("top");
+  $("rankBar").style.width=(p/MAX*100)+"%";
+  const set=(id,a,b)=>{$("c-"+id).textContent=a+"/"+b;$("t-"+id).classList.toggle("done",a===b)};
+  set("quiz",Object.keys(S.quiz).length,QUIZ.length);set("fix",Object.keys(S.fix).length,FIX.length);
+  set("words",Object.keys(S.known).length,WORDS.length);set("site",Object.values(S.check).filter(Boolean).length,CHECK.length);
+  $("c-builder").textContent=S.reviewed?"✓":"";$("t-builder").classList.toggle("done",S.reviewed);
+}
+
+/* ---------- tabs ---------- */
+const TABS=["quiz","builder","fix","words","site"];
+function showTab(id,focus){
+  if(!TABS.includes(id))id="quiz";
+  TABS.forEach(t=>{$(t).hidden=t!==id;$("t-"+t).setAttribute("aria-selected",t===id);$("t-"+t).tabIndex=t===id?0:-1});
+  S.tab=id;save();if(focus)$("t-"+id).focus();
+}
+TABS.forEach((t,i)=>{
+  $("t-"+t).addEventListener("click",()=>showTab(t));
+  $("t-"+t).addEventListener("keydown",e=>{if(e.key==="ArrowRight")showTab(TABS[(i+1)%TABS.length],true);if(e.key==="ArrowLeft")showTab(TABS[(i+TABS.length-1)%TABS.length],true)});
+});
+
+/* ---------- quiz ---------- */
+function renderQuiz(){
+  const i=S.qi,card=$("quizCard"),l=L();
+  if(i>=QUIZ.length){
+    const score=Object.entries(S.quiz).filter(([k,v])=>v===QUIZ[k].a).length;
+    card.innerHTML='<div class="qhead"><span>'+T("result")+'</span></div><p class="scenario">'+score+' / '+QUIZ.length+' '+T("right")+'</p><p style="margin:0;color:var(--muted)">'+(score===QUIZ.length?T("allRight"):T("review2"))+'</p><div class="row"><button class="btn" id="qRestart">'+T("tryAgain")+'</button><button class="btn ghost" id="qAsk">'+T("askTools")+'</button></div>';
+    $("qRestart").onclick=()=>{S.quiz={};S.qi=0;save();renderQuiz();renderRank()};
+    $("qAsk").onclick=()=>askCoach(l==="fr"?"Explique-moi simplement quand utiliser Chat, Projets, Cowork ou Claude Code, avec un exemple concret pour chacun.":"Explain in simple terms when I should use Chat, Projects, Cowork or Claude Code, with one concrete example for each.");
+    return;
+  }
+  const item=QUIZ[i],ans=S.quiz[i],[q,why]=item[l];
+  const dots='<div class="dots">'+QUIZ.map((x,k)=>'<i class="'+(S.quiz[k]===undefined?"":S.quiz[k]===x.a?"r":"w")+(k===i?" cur":"")+'"></i>').join("")+'</div>';
+  let h='<div class="qhead"><span>'+T("situation")+' '+(i+1)+' '+T("of")+' '+QUIZ.length+'</span>'+dots+'</div><p class="scenario">'+esc(q)+'</p><div class="choices">';
+  Object.keys(TOOLS).forEach(k=>{let cls="choice";if(ans!==undefined){if(k===item.a)cls+=" right";else if(k===ans)cls+=" wrong"}
+    h+='<button class="'+cls+'" data-k="'+k+'"'+(ans!==undefined?" disabled":"")+'><b>'+toolName(k)+'</b><span>'+TOOLS[k][l]+'</span></button>'});
+  h+='</div>';
+  if(ans!==undefined){const ok=ans===item.a;
+    h+='<div class="feedback'+(ok?"":" no")+'"><b>'+(ok?T("rightB"):T("notQuite")+toolName(item.a)+". ")+'</b>'+esc(why)+'</div><div class="row"><button class="btn" id="qNext">'+(i+1<QUIZ.length?T("nextSit"):T("seeResult"))+'</button><button class="btn ghost" id="qWhy">'+T("askWhy")+'</button></div>'}
+  card.innerHTML=h;
+  card.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{S.quiz[i]=b.dataset.k;save();renderQuiz();renderRank()});
+  if(ans!==undefined){$("qNext").onclick=()=>{S.qi++;save();renderQuiz()};
+    $("qWhy").onclick=()=>askCoach(l==="fr"?'Situation : « '+q+' ». Pourquoi '+toolName(item.a)+' est le meilleur outil ici'+(ans!==item.a?' plutôt que '+toolName(ans):'')+' ? Réponse courte.':'Situation: "'+q+'". Why is '+toolName(item.a)+' the best tool here'+(ans!==item.a?' rather than '+toolName(ans):'')+'? Short answer.')}
+}
+
+/* ---------- builder ---------- */
+const BF=["context","task","constraints","output"];
+const CHK={
+  context:v=>/\d|€|m²|[A-Z][a-zé]+ [A-Z]/.test(v),
+  task:v=>/^(write|draft|read|check|compare|sort|summar|explain|investigate|list|find|build|create|translate|rédige|écris|lis|vérifie|compare|trie|résume|explique|investigue|liste|trouve|crée|traduis|fais|prépare|analyse)/i.test(v.trim()),
+  constraints:v=>v.split(/[,.;\n]/).filter(s=>s.trim()).length>=2,
+  output:v=>/table|email|mail|list|file|word|pdf|doc|page|plan|tableau|liste|fichier|pitch|summary|résumé|diagnos/i.test(v)
+};
+function buildPrompt(){
+  const lab={context:T("fContext"),task:T("fTask"),constraints:T("fCons"),output:T("fOut")};
+  return BF.filter(k=>$("b-"+k).value.trim()).map(k=>lab[k]+" : ".slice(L()==="fr"?0:1)+$("b-"+k).value.trim()).join("\n");
+}
+function renderBuilder(){
+  let on=0;
+  BF.forEach(k=>{const v=$("b-"+k).value,h=$("h-"+k);
+    if(!v.trim()){h.textContent="";h.className="hint";return}
+    const good=CHK[k](v);if(good)on++;h.textContent=good?T("hintGood")[k]:T("hintBad")[k];h.className="hint"+(good?" ok":"")});
+  $("meter").querySelectorAll("i").forEach((i,n)=>i.classList.toggle("on",n<on));
+  const p=buildPrompt();
+  $("preview").innerHTML=p?esc(p):'<span class="ph">'+T("previewPh")+'</span>';
+  S.draft=Object.fromEntries(BF.map(k=>[k,$("b-"+k).value]));save();
+}
+BF.forEach(k=>{$("b-"+k).value=(S.draft&&S.draft[k])||"";$("b-"+k).addEventListener("input",renderBuilder)});
+if(!BF.some(k=>$("b-"+k).value))BF.forEach(k=>$("b-"+k).value=PRESETS[0][L()][k]);
+$("clearBtn").onclick=()=>{BF.forEach(k=>$("b-"+k).value="");renderBuilder()};
+$("copyBtn").onclick=()=>{const t=buildPrompt(),b=$("copyBtn");
+  const ok=()=>{b.textContent=T("copied");setTimeout(()=>b.textContent=T("copy"),1500)};
+  const fb=()=>{const r=document.createRange();r.selectNodeContents($("preview"));const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent=T("selected")};
+  try{navigator.clipboard.writeText(t).then(ok,fb)}catch(e){fb()}};
+$("reviewBtn").onclick=()=>{const p=buildPrompt();if(!p)return;S.reviewed=true;save();renderRank();
+  askCoach((L()==="fr"?"Relis ce prompt que j'ai écrit. Note-le sur 10, liste ce qui manque en 2-3 puces, puis donne-moi une version améliorée.":"Review this prompt I wrote. Score it out of 10, list what's missing in 2-3 bullets, then give me an improved version.")+"\n\n"+p)};
+
+/* ---------- fix ---------- */
+function renderFix(){
+  const i=S.fi,card=$("fixCard");
+  if(i>=FIX.length){
+    const score=Object.entries(S.fix).filter(([k,v])=>v===FIX[k].a).length;
+    card.innerHTML='<div class="qhead"><span>'+T("result")+'</span></div><p class="scenario">'+score+' / '+FIX.length+' '+T("right")+'</p><div class="row"><button class="btn" id="fRestart">'+T("tryAgain")+'</button></div>';
+    $("fRestart").onclick=()=>{S.fix={};S.fi=0;save();renderFix();renderRank()};return;
+  }
+  const item=FIX[i],d=item[L()],ans=S.fix[i];
+  let h='<div class="qhead"><span>'+T("round")+' '+(i+1)+' '+T("of")+' '+FIX.length+'</span></div><span class="eyebrow">'+T("weak")+'</span><p class="weak">'+esc(d.weak)+'</p><span class="eyebrow">'+T("pickBest")+'</span><div class="opts">';
+  d.opts.forEach((o,k)=>{let c="opt";if(ans!==undefined){if(k===item.a)c+=" right";else if(k===ans)c+=" wrong"}h+='<button class="'+c+'" data-k="'+k+'"'+(ans!==undefined?" disabled":"")+'>'+esc(o)+'</button>'});
+  h+='</div>';
+  if(ans!==undefined)h+='<div class="feedback'+(ans===item.a?"":" no")+'"><b>'+(ans===item.a?T("rightB"):T("notThis"))+'</b>'+esc(d.why)+'</div><div class="row"><button class="btn" id="fNext">'+(i+1<FIX.length?T("nextRound"):T("seeResult"))+'</button><button class="btn ghost" id="fTry">'+T("loadBuilder")+'</button></div>';
+  card.innerHTML=h;
+  card.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{S.fix[i]=+b.dataset.k;save();renderFix();renderRank()});
+  if(ans!==undefined){$("fNext").onclick=()=>{S.fi++;save();renderFix()};
+    $("fTry").onclick=()=>{BF.forEach(k=>$("b-"+k).value="");$("b-context").value=d.opts[item.a];renderBuilder();showTab("builder")}}
+}
+
+/* ---------- words ---------- */
+function renderWord(){
+  const [en,fr,ex,exfr,tagEn,tagFr]=WORDS[S.wi%WORDS.length],isFr=L()==="fr";
+  $("fc").classList.remove("flip");
+  $("fcA").textContent=isFr?fr:en;$("fcB").textContent=isFr?en:fr;
+  $("fcExA").textContent=isFr?"« "+exfr+" »":"“"+ex+"”";$("fcExB").textContent=isFr?"“"+ex+"”":"« "+exfr+" »";
+  $("fcTag").textContent=(isFr?tagFr:tagEn)+" · "+T("frontTag");$("fcTagB").textContent=T("backTag");
+  $("fc").setAttribute("aria-label",isFr?"Retourner la carte":"Flip card");
+  $("fcCount").textContent=(S.wi%WORDS.length+1)+" / "+WORDS.length;
+  $("known").innerHTML=WORDS.map(w=>'<span class="'+(S.known[w[0]]?"k":"")+'">'+esc(isFr?w[1]:w[0])+'</span>').join("");
+}
+$("fc").onclick=()=>$("fc").classList.toggle("flip");
+$("fcKnow").onclick=()=>{S.known[WORDS[S.wi%WORDS.length][0]]=1;S.wi=(S.wi+1)%WORDS.length;save();renderWord();renderRank()};
+$("fcAgain").onclick=()=>{S.wi=(S.wi+1)%WORDS.length;save();renderWord()};
+$("fcAsk").onclick=()=>{const w=WORDS[S.wi%WORDS.length];askCoach(L()==="fr"?'Donne-moi 3 phrases courtes en anglais avec « '+w[0]+' » ('+w[1]+') sur l\'usage de l\'IA, avec leur traduction.':'Give me 3 short example sentences using "'+w[0]+'" ('+w[1]+') about using AI at work or at home.')};
+
+/* ---------- checklist ---------- */
+CHECK.forEach((c,i)=>{const li=document.createElement("li");li.innerHTML='<label><input type="checkbox" id="ck-'+i+'"><span id="ckt-'+i+'"></span><span class="st" id="cks-'+i+'"></span></label>';$("checklist").appendChild(li);
+  const b=li.querySelector("input");b.onchange=()=>{S.check[i]=b.checked;save();renderRank()}});
+
+/* ---------- reset ---------- */
+function restoreReset(){$("resetWrap").innerHTML='<button type="button" id="reset">'+T("reset")+'</button>';
+  $("reset").onclick=()=>{$("resetWrap").innerHTML='<span>'+T("resetQ")+'</span><button type="button" id="rYes">'+T("resetY")+'</button><button type="button" id="rNo">'+T("resetN")+'</button>';
+    $("rYes").onclick=()=>{const l=S.lang;S=blank();S.lang=l;save();BF.forEach(k=>$("b-"+k).value=PRESETS[0][l][k]);init()};$("rNo").onclick=restoreReset}}
+
+/* ---------- chat ---------- */
+const RULES=`You are "Coach", a friendly, practical coach inside an interactive onboarding page that teaches beginners how to use Claude well.
+The person you're talking to may be new to AI. You know nothing about them except what they tell you: don't assume their job, country or situation; ask one short question if it matters.
+Claude products covered by the page: Chat (conversations), Projects (a workspace with instructions and files that every conversation in it can use), memory, Cowork (works on local folders, publishes pages and docs, runs scheduled tasks, can use a browser), Claude Code (for software projects).
+How to answer: short and practical (under 180 words unless asked). Use concrete, everyday examples. Use short bullet lists when useful. If you are unsure about a product feature, say so rather than inventing it. For legal, medical, tax or financial questions, give general information and recommend checking with a professional.`;
+const LANG_RULE={en:"\nAnswer in clear, simple English.",fr:"\nRéponds en français, simplement et clairement (tutoiement). Quand il demande du texte en anglais, donne-le en anglais avec sa traduction."};
+const TR_RULE={en:"\n\nAfter your English answer, add a line containing only \"--- FR ---\" and then a faithful French translation of your answer, so the reader can check it and learn the vocabulary.",fr:"\n\nAfter your French answer, add a line containing only \"--- EN ---\" and then a faithful English translation of your answer, so the reader can learn the English vocabulary."};
+const turns=[];let sample=null,ctl=null,busy=false,sampleState="connecting";
+const msgs=$("msgs");
+function md(t){
+  const lines=esc(t).split("\n");let out="",inList=false;
+  const inline=s=>s.replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/`([^`]+)`/g,"<code>$1</code>").replace(/^#{1,4}\s*(.+)$/,"<b>$1</b>");
+  for(const l of lines){
+    const sep=l.match(/^\s*---\s*(FR|EN)\s*---\s*$/i);
+    if(sep){if(inList){out+="</ul>";inList=false}out+='<span class="frsep">'+(sep[1].toUpperCase()==="FR"?"FRANÇAIS":"ENGLISH")+'</span>';continue}
+    const m=l.match(/^\s*(?:[-*•]|\d+[.)])\s+(.*)/);
+    if(m){if(!inList){out+="<ul>";inList=true}out+="<li>"+inline(m[1])+"</li>";continue}
+    if(inList){out+="</ul>";inList=false}
+    if(l.trim())out+="<p>"+inline(l)+"</p>";
+  }
+  if(inList)out+="</ul>";return out;
+}
+function addMsg(cls,html){const d=document.createElement("div");d.className="msg "+cls;d.innerHTML=html;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d}
+function setBusy(b){busy=b;$("sendBtn").disabled=b||!sample;$("stopBtn").hidden=!b}
+function setStatus(st){sampleState=st;const on=st==="ready";$("cstatus").classList.toggle("on",on);$("cstatusT").textContent=T(st==="ready"?"ready":st==="connecting"?"connecting":"offline");$("sendBtn").disabled=!on||busy;$("cinput").disabled=st==="offline"}
+async function askCoach(text){
+  text=String(text||"").trim();if(!text)return;
+  if(matchMedia("(max-width:980px)").matches)$("chat").scrollIntoView({behavior:"smooth",block:"start"});
+  if(!sample){addMsg("sys",esc(T("notInClaude")));return}
+  if(busy)return;
+  $("starters").hidden=true;
+  addMsg("me",md(text));
+  turns.push({role:"user",content:text});
+  while(turns.length>16)turns.splice(0,2);
+  const bubble=addMsg("ai think","<p>"+T("thinking")+"</p>");
+  setBusy(true);ctl=new AbortController();
+  const l=L(),rules=RULES+LANG_RULE[l]+($("trToggle").checked?TR_RULE[l]:"");
+  try{
+    const res=await sample([{role:"user",content:rules},...turns],{cache:false,signal:ctl.signal,onText:({text})=>{bubble.classList.remove("think");bubble.innerHTML=md(text);msgs.scrollTop=msgs.scrollHeight}});
+    bubble.classList.remove("think");bubble.innerHTML=md(res.text)+(res.truncated?'<p><i>'+T("cut")+'</i></p>':"");
+    turns.push({role:"assistant",content:res.text});
+    if(!S.chatted){S.chatted=true;save();renderRank()}
+  }catch(e){
+    const code=e&&e.code||"upstream_error";
+    bubble.classList.remove("think");
+    if(code==="cancelled"){bubble.innerHTML=(e.text?md(e.text):"")+"<p><i>"+T("stopped")+"</i></p>";if(e.text)turns.push({role:"assistant",content:e.text});else turns.pop()}
+    else{bubble.innerHTML=e.text&&code!=="refused"?md(e.text)+"<p><i>"+T("interrupted")+"</i></p>":"";if(!bubble.innerHTML)bubble.remove();turns.pop();
+      addMsg("sys",esc(T("err")[code]||T("err").upstream_error));
+      if(["not_granted","sampling_disabled","not_declared","capability_disabled","capability_removed"].includes(code)){sample=null;setStatus("offline")}}
+  }finally{setBusy(false)}
+}
+$("cform").addEventListener("submit",e=>{e.preventDefault();const v=$("cinput").value;$("cinput").value="";askCoach(v)});
+$("cinput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey&&!e.isComposing){e.preventDefault();$("cform").requestSubmit()}});
+$("stopBtn").onclick=()=>ctl&&ctl.abort();
+(async()=>{try{sample=window.claude&&window.claude.use?await window.claude.use("sample"):null}catch(e){sample=null}setStatus(sample?"ready":"offline")})();
+
+/* ---------- init ---------- */
+function init(){
+  const h=location.hash.replace("#","");
+  showTab(TABS.includes(h)?h:S.tab);
+  CHECK.forEach((c,i)=>{$("ck-"+i).checked=!!S.check[i]});
+  applyLang();
+}
+init();
+})();
+</script>
+</body>
+</html>
